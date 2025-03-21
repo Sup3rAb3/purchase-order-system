@@ -1,8 +1,10 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import PurchaseOrder, PurchaseOrderItem
 from .forms import PurchaseOrderForm, PurchaseOrderItemFormSet
 
+@login_required
 def create_purchase_order(request):
     if request.method == "POST":
         po_form = PurchaseOrderForm(request.POST)
