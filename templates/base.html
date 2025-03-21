@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Site{% endblock %}</title>
+    <!-- Load Django Admin CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'admin/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/widgets.css' %}">
+    <!-- Load your custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="dashboard">
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+            <h1 id="site-name"><a href="/">My Site Administration</a></h1>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div id="content" class="flex">
+        <div class="main">
+            {% block content %}
+            <!-- Content from child templates will go here -->
+            {% endblock %}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+</body>
+</html>

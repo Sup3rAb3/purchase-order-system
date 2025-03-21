@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Create Purchase Order</h2>
+    <form method="post" class="bg-light p-4 rounded shadow">
+        {% csrf_token %}
+        <!-- Main Form -->
+        <div class="mb-4">
+            <h4 class="mb-3">Purchase Order Details</h4>
+            {{ po_form.as_p }}
+        </div>
+
+        <!-- Formset for Items -->
+        <div class="mb-4">
+            <h4 class="mb-3">Purchase Order Items</h4>
+            {{ item_formset.management_form }}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Item No</th>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Currency</th>
+                        <th>Unit Price</th>
+                        <th>Amount</th>
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <tbody id="items-formset">
+                    {% for form in item_formset %}
+                        <tr class="item-form">
+                            <td>{{ form.item_no }}</td>
+                            <td>{{ form.description }}</td>
+                            <td>{{ form.quantity }}</td>
+                            <td>{{ form.currency }}</td>
+                            <td>{{ form.unit_price }}</td>
+                            <td class="amount">{{ form.amount.value|default:"0.00" }}</td>
+                            <td>
+                                {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+                                {{ form.id }}  <!-- Hidden field for form ID -->
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="button" id="add-item" class="btn btn-secondary">Add Another Item</button>
+        </div>
+
+        <!-- Totals Section -->
+        <div class="mb-4">
+            <h4 class="mb-3">Totals</h4>
+            <div class="form-row">
+                <label for="id_subtotal">Subtotal:</label>
+                <input type="text" id="id_subtotal" name="subtotal" readonly class="form-control">
+            </div>
+            <div class="form-row">
+                <label for="id_vat">VAT (16%):</label>
+                <input type="text" id="id_vat" name="vat" readonly class="form-control">
+            </div>
+            <div class="form-row">
+                <label for="id_total_amount">Total Amount:</label>
+                <input type="text" id="id_total_amount" name="total_amount" readonly class="form-control">
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="submit-row">
+            <button type="submit" class="btn btn-primary">Submit Purchase Order</button>
+        </div>
+    </form>
+</div>
+
+<!-- JavaScript to Add/Remove Items and Calculate Totals -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const formsetContainer = document.getElementById('items-formset');
+        const addButton = document.getElementById('add-item');
+        const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+        let formCount = parseInt(totalForms.value);
+
+        // Function to calculate totals
+        function calculateTotals() {
+            let subtotal = 0;
+
+            // Calculate subtotal
+            document.querySelectorAll('.item-form').forEach(row => {
+                const quantityInput = row.querySelector('input[name$="-quantity"]');
+                const unitPriceInput = row.querySelector('input[name$="-unit_price"]');
+                const amountCell = row.querySelector('.amount');
+
+                const quantity = parseFloat(quantityInput.value) || 0;
+                const unitPrice = parseFloat(unitPriceInput.value) || 0;
+                const amount = quantity * unitPrice;
+
+                amountCell.textContent = amount.toFixed(2);
+                subtotal += amount;
+            });
+
+            // Calculate VAT and total
+            const includeVat = document.querySelector('#id_include_vat').checked;
+            const vatRate = 0.16;
+            const vat = includeVat ? subtotal * vatRate : 0;
+            const totalAmount = subtotal + vat;
+
+            // Update the fields
+            document.querySelector('#id_subtotal').value = subtotal.toFixed(2);
+            document.querySelector('#id_vat').value = vat.toFixed(2);
+            document.querySelector('#id_total_amount').value = totalAmount.toFixed(2);
+        }
+
+        // Function to add a new item row
+        addButton.addEventListener('click', function() {
+            const newForm = document.querySelector('.item-form').cloneNode(true);
+            const formRegex = /items-(\d+)-/g;
+
+            // Update the form index
+            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `items-${formCount}-`);
+            formsetContainer.appendChild(newForm);
+
+            // Increment the form count
+            formCount++;
+            totalForms.value = formCount;
+
+            // Attach event listeners to the new inputs
+            newForm.querySelector('input[name$="-quantity"]').addEventListener('input', calculateTotals);
+            newForm.querySelector('input[name$="-unit_price"]').addEventListener('input', calculateTotals);
+        });
+
+        // Function to remove an item row
+        formsetContainer.addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-item')) {
+                event.target.closest('tr').remove();
+                calculateTotals();
+            }
+        });
+
+        // Attach event listeners to existing inputs
+        document.querySelectorAll('input[name$="-quantity"], input[name$="-unit_price"]').forEach(input => {
+            input.addEventListener('input', calculateTotals);
+        });
+
+        // Attach event listener to the VAT toggle
+        document.querySelector('#id_include_vat').addEventListener('change', calculateTotals);
+
+        // Initial calculation
+        calculateTotals();
+    });
+</script>
+{% endblock %}
