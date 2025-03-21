@@ -19,6 +19,13 @@
         <div id="branding">
             <h1 id="site-name"><a href="/">My Site Administration</a></h1>
         </div>
+        <div id="user-links">
+            {% if user.is_authenticated %}
+                <p>Welcome, {{ user.email }}! <a href="{% url 'account_logout' %}">Logout</a></p>
+            {% else %}
+                <p><a href="{% url 'account_login' %}">Login</a> | <a href="{% url 'account_signup' %}">Sign Up</a></p>
+            {% endif %}
+        </div>
     </div>
 
     <!-- Content -->
