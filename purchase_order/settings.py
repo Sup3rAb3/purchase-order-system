@@ -27,7 +27,31 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SITE_ID = 1
 
+#EMAIL CONFIG 
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development (emails will be printed to the console)
+# For production, use an SMTP backend:
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.your-email-provider.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your-email@example.com'
+# EMAIL_HOST_PASSWORD = 'your-email-password'
+
+#ALLAUTH SETTINGS
+ACCOUNT_EMAIL_REQUIRED = True  # Require email for signup
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # Send a verification email
+ACCOUNT_AUTHENTICATION_METHOD = 'email'  # Use email for authentication
+ACCOUNT_UNIQUE_EMAIL = True  # Ensure emails are unique
+LOGIN_REDIRECT_URL = '/'  # Redirect after login
+
+# Authentication Backend
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,6 +62,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'orders',
+    'django.contrib.sites',  # Required for allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 ]
 
 MIDDLEWARE = [
