@@ -33,12 +33,12 @@ SITE_ID = 1
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development (emails will be printed to the console)
 # For production, use an SMTP backend:
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.your-email-provider.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your-email@example.com'
-# EMAIL_HOST_PASSWORD = 'your-email-password'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.office365.com'  # Outlook SMTP server
+EMAIL_PORT = 587  # Outlook SMTP port (TLS)
+EMAIL_USE_TLS = True  # Use TLS encryption
+EMAIL_HOST_USER = 'amanda@corpus.co.zm'  # Your Outlook email address
+EMAIL_HOST_PASSWORD = 'Corpus2024!'  # Your Outlook password or app password
 
 #ALLAUTH SETTINGS
 ACCOUNT_EMAIL_REQUIRED = True  # Require email for signup
