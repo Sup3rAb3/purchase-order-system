@@ -42,10 +42,10 @@ EMAIL_HOST_PASSWORD = 'Corpus2024!'  # Your Outlook password or app password
 
 #ALLAUTH SETTINGS
 ACCOUNT_EMAIL_REQUIRED = True  # Require email for signup
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # Send a verification email
+ACCOUNT_EMAIL_VERIFICATION = 'optional'  # Send a verification email
 ACCOUNT_AUTHENTICATION_METHOD = 'email'  # Use email for authentication
 ACCOUNT_UNIQUE_EMAIL = True  # Ensure emails are unique
-LOGIN_REDIRECT_URL = '/'  # Redirect after login
+LOGIN_REDIRECT_URL = '/create/'  # Redirect after login
 
 # Authentication Backend
 AUTHENTICATION_BACKENDS = [
@@ -155,3 +155,8 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# settings.py
+DEFAULT_FROM_EMAIL = 'amanda@corpus.co.zm'  # Must match EMAIL_HOST_USER
+SERVER_EMAIL = 'amanda@corpus.co.zm'  # For error notifications
+
+
