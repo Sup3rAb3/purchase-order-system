@@ -1,22 +1,12 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import PurchaseOrder, PurchaseOrderItem, Signatory
+from .models import PurchaseOrder, PurchaseOrderItem, Signatory, SignatoryApproval
 from .forms import PurchaseOrderForm, PurchaseOrderItemFormSet
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils.html import strip_tags
 from django.template.loader import render_to_string
-
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
-from django.urls import reverse
 from django.contrib.auth.models import User
 from orders.models import Signatory, PurchaseOrder
 from orders.forms import PurchaseOrderForm, PurchaseOrderItemFormSet
@@ -85,13 +75,40 @@ def create_purchase_order(request):
     return render(request, "orders/create_po.html", {"po_form": po_form, "item_formset": item_formset})
 
 
-
 @login_required
 def approve_purchase_order(request, po_id):
     purchase_order = get_object_or_404(PurchaseOrder, id=po_id)
-    purchase_order.status = 'Approved'
-    purchase_order.save()
-    messages.success(request, 'Purchase order has been approved.')
+    signatory = get_object_or_404(Signatory, user=request.user)
+
+    # Find existing approval record or create one
+    approval = get_object_or_404(SignatoryApproval, purchase_order=purchase_order, signatory=signatory)
+
+    if approval.status == 'Approved':
+        messages.info(request, "You have already approved this purchase order.")
+        return redirect('create_purchase_order')
+
+    # Mark approval
+    approval.status = 'Approved'
+    approval.save()
+
+    # Check if all assigned signatories have approved
+    required_signatories = SignatoryApproval.objects.filter(purchase_order=purchase_order)
+    all_approved = all(sign.status == 'Approved' for sign in required_signatories)
+
+    # Identify master signatory
+    master_signatory = None
+    if 5000 < purchase_order.total_amount <= 58000:
+        master_signatory = Signatory.objects.get(user__username='generalManager')
+    elif purchase_order.total_amount > 58000:
+        master_signatory = Signatory.objects.get(user__username='seniorPartner')
+
+    # Ensure master signatory has approved before marking as fully approved
+    master_approved = required_signatories.filter(signatory=master_signatory, status='Approved').exists()
+
+    if all_approved and master_approved:
+        purchase_order.status = 'Approved'
+        purchase_order.save()
+        messages.success(request, "Purchase order has been approved.")
     return redirect('create_purchase_order')
 
 @login_required
