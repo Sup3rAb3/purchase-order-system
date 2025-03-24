@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Purchase Order Approval</title>
+</head>
+<body>
+    <h2>Purchase Order Approval Required</h2>
+    <p>Hello {{ signatory.user.username }},</p>
+    <p>You have been requested to approve the following purchase order:</p>
+    <ul>
+        <li><strong>Purchase Order Number:</strong> {{ purchase_order.purchase_order_number }}</li>
+        <li><strong>Requester:</strong> {{ purchase_order.requester.username }}</li>
+        <li><strong>Total Amount:</strong> {{ purchase_order.total_amount }}</li>
+    </ul>
+    <p>Please review the order and take action:</p>
+    <p>
+        <a href="{{ approve_url }}" style="background-color: green; color: white; padding: 10px 20px; text-decoration: none;">Approve</a>
+        <a href="{{ deny_url }}" style="background-color: red; color: white; padding: 10px 20px; text-decoration: none;">Deny</a>
+    </p>
+    <p>Thank you!</p>
+</body>
+</html>
