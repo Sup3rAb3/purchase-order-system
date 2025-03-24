@@ -59,3 +59,11 @@ class PurchaseOrderItem(models.Model):
 
     def __str__(self):
         return f"Item {self.item_no} - {self.description} (Qty: {self.quantity})"
+    
+class Signatory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=50, choices=[('Level1', 'Level 1'), ('Level2', 'Level 2')])
+    email = models.EmailField()
+
+    def __str__(self):
+        return f"{self.user.username} - {self.role}"
