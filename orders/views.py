@@ -7,11 +7,8 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils.html import strip_tags
 from django.template.loader import render_to_string
-from django.contrib.auth.models import User
-from orders.models import Signatory, PurchaseOrder
-from orders.forms import PurchaseOrderForm, PurchaseOrderItemFormSet
 import uuid
-from django.http import HttpResponseForbidden
+from django.http import HttpResponse
 
 @login_required
 def create_purchase_order(request):
@@ -21,77 +18,65 @@ def create_purchase_order(request):
 
         if po_form.is_valid() and item_formset.is_valid():
             try:
-                # Save the PurchaseOrder first
+                # Save PurchaseOrder
                 purchase_order = po_form.save(commit=False)
                 purchase_order.requester = request.user
                 purchase_order.status = 'Pending'
                 purchase_order.save()
 
-                # Save items
-                items = item_formset.save(commit=False)
-                for item in items:
+                # Save Items
+                for item in item_formset.save(commit=False):
                     item.purchase_order = purchase_order
                     item.save()
 
                 purchase_order.calculate_totals()
-                total_amount = purchase_order.total_amount
-
-                # Get required signatories
-                financeManager = Signatory.objects.get(email='abrahammanda.ac@gmail.com')
-                generalManager = Signatory.objects.get(email='mandaabraham7@gmail.com')
-                seniorPartner = Signatory.objects.get(email='amanda@corpus.co.zm')
-
-                # Determine signatories based on amount
-                if total_amount <= 5000:
-                    signatories = [financeManager]
-                elif 5000 < total_amount <= 58000:
-                    signatories = [financeManager, generalManager]
+                
+                # Get signatories based on amount
+                signatories = []
+                if purchase_order.total_amount <= 5000:
+                    signatories.append(Signatory.objects.get(email='abrahammanda.ac@gmail.com'))
+                elif 5000 < purchase_order.total_amount <= 58000:
+                    signatories.extend([
+                        Signatory.objects.get(email='abrahammanda.ac@gmail.com'),
+                        Signatory.objects.get(email='mandaabraham7@gmail.com')
+                    ])
                 else:
-                    signatories = [financeManager, generalManager, seniorPartner]
+                    signatories.extend([
+                        Signatory.objects.get(email='abrahammanda.ac@gmail.com'),
+                        Signatory.objects.get(email='mandaabraham7@gmail.com'),
+                        Signatory.objects.get(email='amanda@corpus.co.zm')
+                    ])
 
-                # Create approvals and send emails
+                # Create approvals
                 for signatory in signatories:
                     token = str(uuid.uuid4())
-                    approval = SignatoryApproval.objects.create(
+                    SignatoryApproval.objects.create(
                         purchase_order=purchase_order,
                         signatory=signatory,
                         approval_token=token
                     )
                     
-                    # Generate unique URLs for each approver
+                    # Send email
                     approve_url = request.build_absolute_uri(
                         reverse('approve_po', args=[token]))
                     deny_url = request.build_absolute_uri(
                         reverse('deny_po', args=[token]))
                     
-                    # Send email
-                    subject = f"Approval Required: PO-{purchase_order.purchase_order_number}"
-                    context = {
-                        'approve_url': approve_url,
-                        'deny_url': deny_url,
-                        'purchase_order': purchase_order,
-                        'signatory': signatory
-                    }
-                    html_message = render_to_string('emails/approval_email.html', context)
-                    plain_message = strip_tags(html_message)
                     send_mail(
-                        subject,
-                        plain_message,
+                        f"PO Approval: {purchase_order.purchase_order_number}",
+                        f"Please review this purchase order: {approve_url}",
                         'amanda@corpus.co.zm',
                         [signatory.email],
-                        html_message=html_message,
                         fail_silently=False
                     )
 
-                messages.success(request, 'Purchase order submitted for approval!')
+                messages.success(request, 'Purchase order submitted!')
                 return redirect('create_purchase_order')
 
-            except Signatory.DoesNotExist:
-                messages.error(request, 'Required signatories not found. Please contact admin.')
-                return redirect('create_purchase_order')
             except Exception as e:
-                messages.error(request, f'Error creating purchase order: {str(e)}')
-                return redirect('create_purchase_order')
+                messages.error(request, f'Error: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
         po_form = PurchaseOrderForm()
         item_formset = PurchaseOrderItemFormSet()
@@ -102,46 +87,15 @@ def create_purchase_order(request):
     })
 
 def approve_po(request, token):
-    try:
-        approval = SignatoryApproval.objects.get(approval_token=token)
-        approval.status = "Approved"
-        approval.save()
-
-        # Check if all signatories approved
-        purchase_order = approval.purchase_order
-        required_signatories = SignatoryApproval.objects.filter(purchase_order=purchase_order)
-        all_approved = all(sign.status == 'Approved' for sign in required_signatories)
-
-        # Identify master signatory
-        master_signatory = None
-        if 5000 < purchase_order.total_amount <= 58000:
-            master_signatory = Signatory.objects.get(email='mandaabraham7@gmail.com')
-        elif purchase_order.total_amount > 58000:
-            master_signatory = Signatory.objects.get(email='amanda@corpus.co.zm')
-
-        master_approved = required_signatories.filter(signatory=master_signatory, status='Approved').exists()
-
-        if all_approved and master_approved:
-            purchase_order.status = 'Approved'
-            purchase_order.save()
-
-        return HttpResponse("Approval successful. Thank you!", content_type="text/plain")
-
-    except SignatoryApproval.DoesNotExist:
-        return HttpResponseForbidden("Invalid or expired approval link.")
-
+    approval = get_object_or_404(SignatoryApproval, approval_token=token)
+    approval.status = "Approved"
+    approval.save()
+    return HttpResponse("Approved successfully")
 
 def deny_po(request, token):
-    try:
-        approval = SignatoryApproval.objects.get(approval_token=token)
-        approval.status = "Rejected"
-        approval.save()
-
-        purchase_order = approval.purchase_order
-        purchase_order.status = "Rejected"
-        purchase_order.save()
-
-        return HttpResponse("Purchase order has been rejected.", content_type="text/plain")
-
-    except SignatoryApproval.DoesNotExist:
-        return HttpResponseForbidden("Invalid or expired rejection link.")
+    approval = get_object_or_404(SignatoryApproval, approval_token=token)
+    approval.status = "Rejected"
+    approval.save()
+    approval.purchase_order.status = "Rejected"
+    approval.purchase_order.save()
+    return HttpResponse("Rejected successfully")
