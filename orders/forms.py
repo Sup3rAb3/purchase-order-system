@@ -5,7 +5,7 @@ from .models import PurchaseOrder, PurchaseOrderItem
 class PurchaseOrderForm(forms.ModelForm):
     class Meta:
         model = PurchaseOrder
-        fields = ['requester', 'destination', 'include_vat']
+        fields = ['destination', 'include_vat']
 
 # Create an inline formset for PurchaseOrderItem
 PurchaseOrderItemFormSet = inlineformset_factory(
