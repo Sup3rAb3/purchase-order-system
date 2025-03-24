@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from .models import PurchaseOrder, PurchaseOrderItem
 from .forms import PurchaseOrderForm, PurchaseOrderItemFormSet
@@ -61,3 +62,19 @@ def create_purchase_order(request):
         item_formset = PurchaseOrderItemFormSet()
 
     return render(request, "orders/create_po.html", {"po_form": po_form, "item_formset": item_formset})
+
+@login_required
+def approve_purchase_order(request, po_id):
+    purchase_order = get_object_or_404(PurchaseOrder, id=po_id)
+    purchase_order.status = 'Approved'
+    purchase_order.save()
+    messages.success(request, 'Purchase order has been approved.')
+    return redirect('create_purchase_order')
+
+@login_required
+def deny_purchase_order(request, po_id):
+    purchase_order = get_object_or_404(PurchaseOrder, id=po_id)
+    purchase_order.status = 'Rejected'
+    purchase_order.save()
+    messages.success(request, 'Purchase order has been denied.')
+    return redirect('create_purchase_order')
