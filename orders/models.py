@@ -61,23 +61,24 @@ class PurchaseOrderItem(models.Model):
         return f"Item {self.item_no} - {self.description} (Qty: {self.quantity})"
     
 class Signatory(models.Model):
-    name = models.CharField(max_length=100)  # Store signatory's name
+    name = models.CharField(max_length=100, default="Unknown Signatory")  # Set a default name
     role = models.CharField(max_length=50, choices=[('Level1', 'Level 1'), ('Level2', 'Level 2')])
     email = models.EmailField(unique=True)  # Email for approval
 
     def __str__(self):
         return f"{self.name} - {self.role}"
 
+
 class SignatoryApproval(models.Model):
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="approvals")
-    signatory = models.ForeignKey(Signatory, on_delete=models.CASCADE)
-    email = models.EmailField()  # Store approver's email
+    signatory = models.ForeignKey(Signatory, on_delete=models.CASCADE)  # email available via signatory.email
     status = models.CharField(
         max_length=20, 
         choices=[("Pending", "Pending"), ("Approved", "Approved"), ("Rejected", "Rejected")], 
         default="Pending"
     )
-    approval_token = models.CharField(max_length=100, unique=True, null=True, blank=True)  # For email authentication
+    approval_token = models.CharField(max_length=100, unique=True, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.email} - {self.purchase_order.purchase_order_number} - {self.status}"
+        return f"{self.signatory.email} - {self.purchase_order.purchase_order_number} - {self.status}"
+    
