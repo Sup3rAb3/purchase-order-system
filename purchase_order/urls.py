@@ -18,13 +18,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.urls import path
-from orders.views import approve_purchase_order, deny_purchase_order
-from orders.views import create_purchase_order, approve_purchase_order  # Ensure this import is correct
+from orders.views import approve_po, deny_po
+from orders.views import create_purchase_order  # Ensure this import is correct
 
 urlpatterns = [
     path('admin/', admin.site.urls),  # Admin URL
     path('accounts/', include('allauth.urls')),  # Allauth URLs
     path('create/', create_purchase_order, name='create_purchase_order'),  # Create Purchase Order URL
-    path('approve/<int:po_id>/', approve_purchase_order, name='approve_purchase_order'), # Approve Purchase Order
-    path('deny/<int:po_id>/', deny_purchase_order, name='deny_purchase_order'), # Deny Purchase Order
+    path('approve/<str:token>/', approve_po, name='approve_purchase_order'), # Approve Purchase Order
+    path('deny/<str:token>/', deny_po, name='deny_purchase_order'), # Deny Purchase
 ]
