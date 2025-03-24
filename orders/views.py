@@ -13,6 +13,7 @@ def create_purchase_order(request):
         if po_form.is_valid() and item_formset.is_valid():
             # Save the PurchaseOrder first
             purchase_order = po_form.save(commit=False)
+            purchase_order.requester = request.user  # Set the requester to the currently logged-in user
             purchase_order.status = 'Pending'  # Set initial status
             purchase_order.save()
 
