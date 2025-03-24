@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PurchaseOrder, PurchaseOrderItem
+from .models import PurchaseOrder, Signatory, SignatoryApproval, PurchaseOrderItem
 
 class PurchaseOrderItemInline(admin.TabularInline):
     model = PurchaseOrderItem
@@ -13,7 +13,8 @@ class PurchaseOrderAdmin(admin.ModelAdmin):
     search_fields = ('purchase_order_number', 'requester__username', 'destination')
     inlines = [PurchaseOrderItemInline]  # Add inline forms for PurchaseOrderItem
 
-
+admin.site.register(Signatory)
+admin.site.register(SignatoryApproval)
 
 
 
