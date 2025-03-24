@@ -12,3 +12,8 @@ class PurchaseOrderAdmin(admin.ModelAdmin):
     list_filter = ('status', 'created_at')
     search_fields = ('purchase_order_number', 'requester__username', 'destination')
     inlines = [PurchaseOrderItemInline]  # Add inline forms for PurchaseOrderItem
+
+
+
+
+

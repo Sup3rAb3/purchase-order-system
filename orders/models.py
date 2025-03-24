@@ -67,3 +67,15 @@ class Signatory(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.role}"
+    
+class SignatoryApproval(models.Model):
+    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="approvals")
+    signatory = models.ForeignKey(Signatory, on_delete=models.CASCADE)
+    status = models.CharField(
+        max_length=20, 
+        choices=[("Pending", "Pending"), ("Approved", "Approved"), ("Rejected", "Rejected")], 
+        default="Pending"
+    )
+
+    def __str__(self):
+        return f"{self.signatory.user.username} - {self.purchase_order.purchase_order_number} - {self.status}"
