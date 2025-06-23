@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 {% load static %}
 
 {% block title %}Create Purchase Order{% endblock %}
@@ -212,6 +213,11 @@
         }
     }
 
+    // Function to format numbers with commas
+    function formatNumber(number) {
+        return Number(number).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
     document.addEventListener('DOMContentLoaded', async function() {
         // Load exchange rates before initializing the form
         await loadExchangeRates();
@@ -262,11 +268,11 @@
                     if (firstCurrency === null) {
                         firstCurrency = currency;
                     }
-                    row.querySelector('.amount').textContent = amount.toFixed(2);
+                    row.querySelector('.amount').textContent = formatNumber(amount);
                     subtotal += amount;
                     totalZmw += convertToZMW(amount, currency);
                 } else {
-                    row.querySelector('.amount').textContent = "0.00";
+                    row.querySelector('.amount').textContent = formatNumber(0.00);
                 }
             });
             const includeVatCheckbox = document.querySelector('#id_include_vat');
@@ -275,10 +281,10 @@
             const total = subtotal + vat;
             // Convert the total amount to ZMW instead of summing individual converted amounts
             const totalInZmw = convertToZMW(total, firstCurrency || 'ZMW');
-            document.querySelector('#id_subtotal').value = subtotal.toFixed(2);
-            document.querySelector('#id_vat').value = vat.toFixed(2);
-            document.querySelector('#id_total_amount').value = total.toFixed(2);
-            document.querySelector('#id_total_zmw').value = totalInZmw.toFixed(2);
+            document.querySelector('#id_subtotal').value = formatNumber(subtotal);
+            document.querySelector('#id_vat').value = formatNumber(vat);
+            document.querySelector('#id_total_amount').value = formatNumber(total);
+            document.querySelector('#id_total_zmw').value = formatNumber(totalInZmw);
         }
     
         // --- Get the Currency of the First Non-Deleted Item ---
@@ -442,7 +448,7 @@
             }
             if (totalZmw <= 1000) {
                 e.preventDefault();
-                alert(`Total in ZMW (${totalZmw.toFixed(2)} ZMW) must be greater than 1,000 ZMW. Use petty cash for amounts of 1,000 ZMW or less.`);
+                alert(`Total in ZMW (${formatNumber(totalZmw)} ZMW) must be greater than 1,000 ZMW. Use petty cash for amounts of 1,000 ZMW or less.`);
                 return;
             }
             calculateTotals();
