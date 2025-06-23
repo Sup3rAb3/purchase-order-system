@@ -1,150 +1,577 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Create Purchase Order{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4">Create Purchase Order</h2>
-    <form method="post" class="bg-light p-4 rounded shadow">
+<div class="fixed-container mt-4">
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if item_formset.non_form_errors %}
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <strong>Error:</strong> {{ item_formset.non_form_errors|join:" " }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% if quotation_formset.non_form_errors %}
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <strong>Error:</strong> {{ quotation_formset.non_form_errors|join:" " }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    <h2 class="mb-4 fw-bold text-dark">Create Purchase Order</h2>
+    <p class="text-muted mb-4">For amounts ≤ 1,000 ZMW, <a href="{% url 'create_petty_cash' %}" class="btn btn-link p-0">request petty cash instead</a>.</p>
+
+    <form method="post" class="card p-4 shadow-sm" enctype="multipart/form-data">
         {% csrf_token %}
-        <!-- Main Form -->
-        <div class="mb-4">
-            <h4 class="mb-3">Purchase Order Details</h4>
-            {{ po_form.as_p }}
+        <div class="mb-5">
+            <h4 class="fw-semibold text-dark mb-3">Purchase Order Details</h4>
+            <div class="row g-3">
+                {{ po_form.as_p }}
+            </div>
+            {% if po_form.errors %}
+            <div class="alert alert-danger mt-3">{{ po_form.errors }}</div>
+            {% endif %}
         </div>
 
-        <!-- Formset for Items -->
-        <div class="mb-4">
-            <h4 class="mb-3">Purchase Order Items</h4>
+        <div class="mb-5">
+            <h4 class="fw-semibold text-dark mb-3">Items</h4>
             {{ item_formset.management_form }}
-            <table class="table table-bordered">
-                <thead>
+            <script type="text/html" id="item-template">
+                <tr class="item-form animate-in">
+                    <td class="px-2 py-1"><input type="number" name="items-__prefix__-item_no" class="form-control sleek-input" required></td>
+                    <td class="px-2 py-1"><input type="text" name="items-__prefix__-description" class="form-control sleek-input" required></td>
+                    <td class="px-2 py-1"><input type="number" name="items-__prefix__-quantity" class="form-control sleek-input" min="1" value="1" required></td>
+                    <td class="px-2 py-1">
+                        <select name="items-__prefix__-currency" class="form-select sleek-select">
+                            <option value="ZMW" selected>ZMW</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="ZAR">ZAR</option>
+                        </select>
+                    </td>
+                    <td class="px-2 py-1"><input type="number" name="items-__prefix__-unit_price" class="form-control sleek-input" step="0.01" required></td>
+                    <td class="px-2 py-1 text-end"><span class="amount text-muted">0.00</span></td>
+                    <td class="px-2 py-1 text-center">
+                        <input type="hidden" name="items-__prefix__-id">
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-btn" data-delete="items-__prefix__-DELETE">×</button>
+                        <input type="checkbox" name="items-__prefix__-DELETE" class="form-check-input delete-checkbox" style="display: none;">
+                    </td>
+                </tr>
+            </script>
+            <table class="sleek-table shadow-sm">
+                <thead class="table-light">
                     <tr>
-                        <th>Item No</th>
-                        <th>Description</th>
-                        <th>Quantity</th>
-                        <th>Currency</th>
-                        <th>Unit Price</th>
-                        <th>Amount</th>
-                        <th>Remove</th>
+                        <th scope="col" class="px-2 py-1" style="width: 5%">Item No</th>
+                        <th scope="col" class="px-2 py-1" style="width: 30%">Description</th>
+                        <th scope="col" class="px-2 py-1" style="width: 11%">Quantity</th>
+                        <th scope="col" class="px-2 py-1" style="width: 8%">Currency</th>
+                        <th scope="col" class="px-2 py-1" style="width: 15%">Unit Price</th>
+                        <th scope="col" class="px-2 py-1" style="width: 21%">Amount</th>
+                        <th scope="col" class="px-2 py-1" style="width: 10%"></th>
                     </tr>
                 </thead>
                 <tbody id="items-formset">
                     {% for form in item_formset %}
-                        <tr class="item-form">
-                            <td>{{ form.item_no }}</td>
-                            <td>{{ form.description }}</td>
-                            <td>{{ form.quantity }}</td>
-                            <td>{{ form.currency }}</td>
-                            <td>{{ form.unit_price }}</td>
-                            <td class="amount">{{ form.amount.value|default:"0.00" }}</td>
-                            <td>
-                                {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
-                                {{ form.id }}  <!-- Hidden field for form ID -->
-                            </td>
-                        </tr>
+                    <tr class="item-form animate-in">
+                        <td class="px-2 py-1">
+                            <input type="number" name="{{ form.prefix }}-item_no" id="{{ form.item_no.id_for_label }}" class="form-control sleek-input" value="{{ form.item_no.value|default:'' }}" required>
+                            {% if form.item_no.errors %}<small class="text-danger d-block">{{ form.item_no.errors }}</small>{% endif %}
+                        </td>
+                        <td class="px-2 py-1">
+                            <input type="text" name="{{ form.prefix }}-description" id="{{ form.description.id_for_label }}" class="form-control sleek-input" value="{{ form.description.value|default:'' }}" required>
+                            {% if form.description.errors %}<small class="text-danger d-block">{{ form.description.errors }}</small>{% endif %}
+                        </td>
+                        <td class="px-2 py-1">
+                            <input type="number" name="{{ form.prefix }}-quantity" id="{{ form.quantity.id_for_label }}" class="form-control sleek-input" min="1" value="{{ form.quantity.value|default:'1' }}" required>
+                            {% if form.quantity.errors %}<small class="text-danger d-block">{{ form.quantity.errors }}</small>{% endif %}
+                        </td>
+                        <td class="px-2 py-1">
+                            <select name="{{ form.prefix }}-currency" id="{{ form.currency.id_for_label }}" class="form-select sleek-select">
+                                <option value="ZMW" {% if form.currency.value == "ZMW" %}selected{% endif %}>ZMW</option>
+                                <option value="USD" {% if form.currency.value == "USD" %}selected{% endif %}>USD</option>
+                                <option value="EUR" {% if form.currency.value == "EUR" %}selected{% endif %}>EUR</option>
+                                <option value="ZAR" {% if form.currency.value == "ZAR" %}selected{% endif %}>ZAR</option>
+                            </select>
+                            {% if form.currency.errors %}<small class="text-danger d-block">{{ form.currency.errors }}</small>{% endif %}
+                        </td>
+                        <td class="px-2 py-1">
+                            <input type="number" name="{{ form.prefix }}-unit_price" id="{{ form.unit_price.id_for_label }}" class="form-control sleek-input" step="0.01" value="{{ form.unit_price.value|default:'' }}" required>
+                            {% if form.unit_price.errors %}<small class="text-danger d-block">{{ form.unit_price.errors }}</small>{% endif %}
+                        </td>
+                        <td class="px-2 py-1 text-end"><span class="amount text-muted">0.00</span></td>
+                        <td class="px-2 py-1 text-center">
+                            <input type="hidden" name="{{ form.prefix }}-id" id="{{ form.id.id_for_label }}" value="{{ form.id.value|default:'' }}">
+                            <button type="button" class="btn btn-sm btn-outline-danger delete-btn" data-delete="{{ form.prefix }}-DELETE">×</button>
+                            <input type="checkbox" name="{{ form.prefix }}-DELETE" id="{{ form.DELETE.id_for_label }}" class="form-check-input delete-checkbox" style="display: none;" {% if form.DELETE.value %}checked{% endif %}>
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            <button type="button" id="add-item" class="btn btn-secondary">Add Another Item</button>
+            <button type="button" id="add-item" class="btn btn-outline-dark btn-sm mt-3 px-3 py-1">+ Add Item</button>
         </div>
 
-        <!-- Totals Section -->
-        <div class="mb-4">
-            <h4 class="mb-3">Totals</h4>
-            <div class="form-row">
-                <label for="id_subtotal">Subtotal:</label>
-                <input type="text" id="id_subtotal" name="subtotal" readonly class="form-control">
-            </div>
-            <div class="form-row">
-                <label for="id_vat">VAT (16%):</label>
-                <input type="text" id="id_vat" name="vat" readonly class="form-control">
-            </div>
-            <div class="form-row">
-                <label for="id_total_amount">Total Amount:</label>
-                <input type="text" id="id_total_amount" name="total_amount" readonly class="form-control">
+        <div class="mb-5">
+            <h4 class="fw-semibold text-dark mb-3">Quotations (Optional)</h4>
+            {{ quotation_formset.management_form }}
+            <script type="text/html" id="quotation-template">
+                <tr class="quotation-form animate-in">
+                    <td class="px-2 py-1">
+                        <input type="file" name="quotations-__prefix__-file" class="form-control sleek-input">
+                    </td>
+                    <td class="px-2 py-1 text-center">
+                        <input type="hidden" name="quotations-__prefix__-id">
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-btn" data-delete="quotations-__prefix__-DELETE">×</button>
+                        <input type="checkbox" name="quotations-__prefix__-DELETE" class="form-check-input delete-checkbox" style="display: none;">
+                    </td>
+                </tr>
+            </script>
+            <table class="sleek-table shadow-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" class="px-2 py-1" style="width: 90%">Quotation File</th>
+                        <th scope="col" class="px-2 py-1" style="width: 10%"></th>
+                    </tr>
+                </thead>
+                <tbody id="quotations-formset">
+                    {% for form in quotation_formset %}
+                    <tr class="quotation-form animate-in">
+                        <td class="px-2 py-1">
+                            {{ form.file }}
+                            {% if form.file.errors %}<small class="text-danger d-block">{{ form.file.errors }}</small>{% endif %}
+                        </td>
+                        <td class="px-2 py-1 text-center">
+                            {{ form.id }}
+                            <button type="button" class="btn btn-sm btn-outline-danger delete-btn" data-delete="{{ form.prefix }}-DELETE">×</button>
+                            <input type="checkbox" name="{{ form.prefix }}-DELETE" id="{{ form.DELETE.id_for_label }}" class="form-check-input delete-checkbox" style="display: none;" {% if form.DELETE.value %}checked{% endif %}>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="button" id="add-quotation" class="btn btn-outline-dark btn-sm mt-3 px-3 py-1">+ Add Quotation</button>
+        </div>
+
+        <div class="totals-card card p-4 bg-white shadow-sm">
+            <h4 class="fw-semibold text-dark mb-3">Totals</h4>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-medium">Subtotal:</label>
+                    <input type="text" id="id_subtotal" name="subtotal" readonly class="form-control" value="0.00">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-medium">VAT (16%):</label>
+                    <input type="text" id="id_vat" name="vat" readonly class="form-control" value="0.00">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-medium">Total Amount:</label>
+                    <input type="text" id="id_total_amount" name="total_amount" readonly class="form-control" value="0.00">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-medium">Total in ZMW:</label>
+                    <input type="text" id="id_total_zmw" name="total_zmw" readonly class="form-control" value="0.00">
+                </div>
             </div>
         </div>
 
-        <!-- Submit Button -->
-        <div class="submit-row">
-            <button type="submit" class="btn btn-primary">Submit Purchase Order</button>
-        </div>
+        <button type="submit" class="btn btn-outline-dark btn-md mt-5 w-100 px-4 py-2">Submit Purchase Order</button>
     </form>
 </div>
 
-<!-- JavaScript to Add/Remove Items and Calculate Totals -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    // Global variable to store exchange rates
+    let exchangeRates = {};
+
+    // Fetch exchange rates from the API
+    async function loadExchangeRates() {
+        try {
+            const response = await fetch('/api/exchange-rates/');
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            exchangeRates = data;
+            console.log('Fetched Exchange Rates:', exchangeRates);
+            if (Object.keys(exchangeRates).length === 0) {
+                alert("Warning: No exchange rates available. Currency conversions may be inaccurate.");
+            }
+        } catch (error) {
+            console.error('Error fetching exchange rates:', error);
+            alert("Error: Unable to load exchange rates. Currency conversions may be inaccurate.");
+            exchangeRates = {};
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Load exchange rates before initializing the form
+        await loadExchangeRates();
+
+        // --- Item Formset Variables ---
         const formsetContainer = document.getElementById('items-formset');
         const addButton = document.getElementById('add-item');
         const totalForms = document.getElementById('id_items-TOTAL_FORMS');
         let formCount = parseInt(totalForms.value);
-
-        // Function to calculate totals
+    
+        // --- Quotation Formset Variables ---
+        const quotationContainer = document.getElementById('quotations-formset');
+        const addQuotationButton = document.getElementById('add-quotation');
+        const quotationTotalForms = document.getElementById('id_quotations-TOTAL_FORMS');
+        let quotationCount = parseInt(quotationTotalForms.value);
+    
+        // --- Convert amount to ZMW ---
+        function convertToZMW(amount, currency) {
+            if (!exchangeRates[currency] || !exchangeRates['ZMW']) {
+                console.warn(`Exchange rate for ${currency} or ZMW not available`);
+                return amount; // Fallback to raw amount if rates are missing
+            }
+            const rateToUsd = exchangeRates[currency].rate_to_usd;
+            const zmwRateToUsd = exchangeRates['ZMW'].rate_to_usd;
+            const amountInUsd = amount * rateToUsd;
+            const amountInZmw = amountInUsd / zmwRateToUsd;
+            console.log(`Converting ${amount} ${currency} to ZMW: ${amountInUsd} USD / ${zmwRateToUsd} = ${amountInZmw} ZMW`);
+            return parseFloat(amountInZmw.toFixed(2));
+        }
+    
+        // --- Calculate Totals for Items ---
         function calculateTotals() {
             let subtotal = 0;
-
-            // Calculate subtotal
-            document.querySelectorAll('.item-form').forEach(row => {
-                const quantityInput = row.querySelector('input[name$="-quantity"]');
-                const unitPriceInput = row.querySelector('input[name$="-unit_price"]');
-                const amountCell = row.querySelector('.amount');
-
-                const quantity = parseFloat(quantityInput.value) || 0;
-                const unitPrice = parseFloat(unitPriceInput.value) || 0;
-                const amount = quantity * unitPrice;
-
-                amountCell.textContent = amount.toFixed(2);
-                subtotal += amount;
+            let totalZmw = 0;
+            let firstCurrency = null;
+            const rows = document.querySelectorAll('.item-form');
+            rows.forEach(row => {
+                const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+                const isDeleted = deleteCheckbox && deleteCheckbox.checked;
+                if (!isDeleted) {
+                    const quantityInput = row.querySelector('input[name$="-quantity"]');
+                    const unitPriceInput = row.querySelector('input[name$="-unit_price"]');
+                    const currencySelect = row.querySelector('select[name$="-currency"]');
+                    const quantity = quantityInput ? parseFloat(quantityInput.value) || 0 : 0;
+                    const unitPrice = unitPriceInput ? parseFloat(unitPriceInput.value) || 0 : 0;
+                    const currency = currencySelect ? currencySelect.value : 'ZMW';
+                    const amount = quantity * unitPrice;
+                    if (firstCurrency === null) {
+                        firstCurrency = currency;
+                    }
+                    row.querySelector('.amount').textContent = amount.toFixed(2);
+                    subtotal += amount;
+                    totalZmw += convertToZMW(amount, currency);
+                } else {
+                    row.querySelector('.amount').textContent = "0.00";
+                }
             });
-
-            // Calculate VAT and total
-            const includeVat = document.querySelector('#id_include_vat').checked;
-            const vatRate = 0.16;
-            const vat = includeVat ? subtotal * vatRate : 0;
-            const totalAmount = subtotal + vat;
-
-            // Update the fields
+            const includeVatCheckbox = document.querySelector('#id_include_vat');
+            const includeVat = includeVatCheckbox ? includeVatCheckbox.checked : false;
+            const vat = includeVat ? Math.round(subtotal * 0.16 * 100) / 100 : 0;
+            const total = subtotal + vat;
+            // Convert the total amount to ZMW instead of summing individual converted amounts
+            const totalInZmw = convertToZMW(total, firstCurrency || 'ZMW');
             document.querySelector('#id_subtotal').value = subtotal.toFixed(2);
             document.querySelector('#id_vat').value = vat.toFixed(2);
-            document.querySelector('#id_total_amount').value = totalAmount.toFixed(2);
+            document.querySelector('#id_total_amount').value = total.toFixed(2);
+            document.querySelector('#id_total_zmw').value = totalInZmw.toFixed(2);
         }
-
-        // Function to add a new item row
+    
+        // --- Get the Currency of the First Non-Deleted Item ---
+        function getCurrency() {
+            const rows = document.querySelectorAll('.item-form');
+            for (let row of rows) {
+                const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+                const isDeleted = deleteCheckbox && deleteCheckbox.checked;
+                if (!isDeleted) {
+                    const currencySelect = row.querySelector('select[name$="-currency"]');
+                    return currencySelect ? currencySelect.value : 'ZMW';
+                }
+            }
+            return 'ZMW';
+        }
+    
+        // --- Reindex Item Rows ---
+        function reindexRows() {
+            const rows = document.querySelectorAll('.item-form');
+            rows.forEach((row, index) => {
+                row.querySelectorAll('input, select').forEach(input => {
+                    if (input.name) {
+                        input.name = input.name.replace(/items-\d+-/, `items-${index}-`);
+                        if (input.id) {
+                            input.id = input.id.replace(/id_items-\d+-/, `id_items-${index}-`);
+                        }
+                    }
+                });
+            });
+            totalForms.value = rows.length;
+            formCount = rows.length;
+        }
+    
+        // --- Bind Events to Item Rows ---
+        function bindEventsToRow(row) {
+            const quantityInput = row.querySelector('input[name$="-quantity"]');
+            const unitPriceInput = row.querySelector('input[name$="-unit_price"]');
+            const currencySelect = row.querySelector('select[name$="-currency"]');
+            const deleteBtn = row.querySelector('.delete-btn');
+            const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+    
+            if (quantityInput) {
+                quantityInput.addEventListener('input', calculateTotals);
+            }
+            if (unitPriceInput) {
+                unitPriceInput.addEventListener('input', calculateTotals);
+            }
+            if (currencySelect) {
+                currencySelect.addEventListener('change', calculateTotals);
+            }
+            if (deleteBtn && deleteCheckbox) {
+                deleteBtn.addEventListener('click', function() {
+                    deleteCheckbox.checked = true;
+                    row.classList.add('animate-out');
+                    setTimeout(() => {
+                        if (row.parentNode) {
+                            row.parentNode.removeChild(row);
+                            reindexRows();
+                            calculateTotals();
+                        }
+                    }, 300);
+                });
+            }
+        }
+    
+        // --- Add New Item Row ---
         addButton.addEventListener('click', function() {
-            const newForm = document.querySelector('.item-form').cloneNode(true);
-            const formRegex = /items-(\d+)-/g;
-
-            // Update the form index
-            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `items-${formCount}-`);
-            formsetContainer.appendChild(newForm);
-
-            // Increment the form count
+            const template = document.getElementById('item-template').innerHTML;
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = template.replace(/__prefix__/g, formCount);
+            newRow.classList.add('item-form', 'animate-in');
+            formsetContainer.appendChild(newRow);
             formCount++;
             totalForms.value = formCount;
-
-            // Attach event listeners to the new inputs
-            newForm.querySelector('input[name$="-quantity"]').addEventListener('input', calculateTotals);
-            newForm.querySelector('input[name$="-unit_price"]').addEventListener('input', calculateTotals);
+            bindEventsToRow(newRow);
+            calculateTotals();
         });
-
-        // Function to remove an item row
-        formsetContainer.addEventListener('click', function(event) {
-            if (event.target.classList.contains('remove-item')) {
-                event.target.closest('tr').remove();
-                calculateTotals();
+    
+        // --- Reindex Quotation Rows ---
+        function reindexQuotationRows() {
+            const rows = document.querySelectorAll('.quotation-form');
+            rows.forEach((row, index) => {
+                row.querySelectorAll('input').forEach(input => {
+                    if (input.name) {
+                        input.name = input.name.replace(/quotations-\d+-/, `quotations-${index}-`);
+                        if (input.id) {
+                            input.id = input.id.replace(/id_quotations-\d+-/, `id_quotations-${index}-`);
+                        }
+                    }
+                });
+            });
+            quotationTotalForms.value = rows.length;
+            quotationCount = rows.length;
+        }
+    
+        // --- Bind Events to Quotation Rows ---
+        function bindEventsToQuotationRow(row) {
+            const deleteBtn = row.querySelector('.delete-btn');
+            const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+            if (deleteBtn && deleteCheckbox) {
+                deleteBtn.addEventListener('click', function() {
+                    deleteCheckbox.checked = true;
+                    row.classList.add('animate-out');
+                    setTimeout(() => {
+                        if (row.parentNode) {
+                            row.parentNode.removeChild(row);
+                            reindexQuotationRows();
+                        }
+                    }, 300);
+                });
             }
+        }
+    
+        // --- Add New Quotation Row ---
+        addQuotationButton.addEventListener('click', function() {
+            const template = document.getElementById('quotation-template').innerHTML;
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = template.replace(/__prefix__/g, quotationCount);
+            newRow.classList.add('quotation-form', 'animate-in');
+            quotationContainer.appendChild(newRow);
+            quotationCount++;
+            quotationTotalForms.value = quotationCount;
+            bindEventsToQuotationRow(newRow);
         });
-
-        // Attach event listeners to existing inputs
-        document.querySelectorAll('input[name$="-quantity"], input[name$="-unit_price"]').forEach(input => {
-            input.addEventListener('input', calculateTotals);
+    
+        // --- Initialize Existing Rows ---
+        document.querySelectorAll('.item-form').forEach(row => bindEventsToRow(row));
+        document.querySelectorAll('.quotation-form').forEach(row => bindEventsToQuotationRow(row));
+    
+        // --- VAT Checkbox Listener ---
+        const includeVatCheckbox = document.querySelector('#id_include_vat');
+        if (includeVatCheckbox) {
+            includeVatCheckbox.addEventListener('change', calculateTotals);
+        }
+    
+        // --- Form Submission Validation ---
+        document.querySelector('form').addEventListener('submit', function(e) {
+            let totalZmw = 0;
+            let firstCurrency = null;
+            const rows = document.querySelectorAll('.item-form');
+            for (let row of rows) {
+                const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+                const isDeleted = deleteCheckbox && deleteCheckbox.checked;
+                if (!isDeleted) {
+                    const currencySelect = row.querySelector('select[name$="-currency"]');
+                    const quantityInput = row.querySelector('input[name$="-quantity"]');
+                    const unitPriceInput = row.querySelector('input[name$="-unit_price"]');
+                    const currency = currencySelect ? currencySelect.value : 'ZMW';
+                    const quantity = quantityInput ? parseFloat(quantityInput.value) || 0 : 0;
+                    const unitPrice = unitPriceInput ? parseFloat(unitPriceInput.value) || 0 : 0;
+                    const amount = quantity * unitPrice;
+                    if (firstCurrency === null) {
+                        firstCurrency = currency;
+                    } else if (currency !== firstCurrency) {
+                        e.preventDefault();
+                        alert("All items must use the same currency.");
+                        return;
+                    }
+                    totalZmw += convertToZMW(amount, currency);
+                }
+            }
+            if (totalZmw <= 1000) {
+                e.preventDefault();
+                alert(`Total in ZMW (${totalZmw.toFixed(2)} ZMW) must be greater than 1,000 ZMW. Use petty cash for amounts of 1,000 ZMW or less.`);
+                return;
+            }
+            calculateTotals();
         });
-
-        // Attach event listener to the VAT toggle
-        document.querySelector('#id_include_vat').addEventListener('change', calculateTotals);
-
-        // Initial calculation
+    
+        // --- Initial Calculation ---
         calculateTotals();
     });
 </script>
+
+<style>
+.fixed-container {
+    width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.card {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0;
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+.sleek-table {
+    width: 100%;
+    max-width: 1152px;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    background: #fff;
+}
+.sleek-table th, .sleek-table td {
+    vertical-align: middle;
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+}
+.sleek-table thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+.sleek-table th:nth-child(1) { width: 5%; }
+.sleek-table th:nth-child(2) { width: 30%; }
+.sleek-table th:nth-child(3) { width: 11%; }
+.sleek-table th:nth-child(4) { width: 8%; }
+.sleek-table th:nth-child(5) { width: 15%; }
+.sleek-table th:nth-child(6) { width: 21%; }
+.sleek-table th:nth-child(7) { width: 10%; }
+.item-form, .quotation-form {
+    transition: all 0.3s ease;
+}
+.animate-in {
+    animation: slideIn 0.3s ease;
+}
+.animate-out {
+    animation: slideOut 0.3s ease forwards;
+}
+@keyframes slideIn {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+@keyframes slideOut {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(10px); opacity: 0; }
+}
+.sleek-input, .sleek-select {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+.sleek-input:focus, .sleek-select:focus {
+    border-color: #495057;
+    box-shadow: none;
+    outline: none;
+}
+.sleek-select {
+    max-width: 80px;
+    height: 30px;
+}
+input[name$="-unit_price"] {
+    text-align: right;
+}
+.amount {
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+.delete-btn {
+    padding: 0.1rem 0.5rem;
+    font-size: 0.9rem;
+    border-radius: 4px;
+}
+.delete-checkbox {
+    display: none;
+}
+.btn-outline-dark {
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+.btn-outline-dark:hover {
+    background-color: #4682b4;
+    color: white;
+}
+.btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.85rem;
+}
+.totals-card {
+    width: 100%;
+    max-width: 1152px;
+    margin: 0 auto;
+}
+.totals-card .row {
+    width: 100%;
+}
+.totals-card .col-md-4 {
+    display: flex;
+    flex-direction: column;
+}
+.totals-card .form-control {
+    width: 100%;
+    max-width: 100%;
+}
+</style>
 {% endblock %}

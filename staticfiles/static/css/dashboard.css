@@ -1,0 +1,29 @@
+/* static/css/dashboard.css */
+
+/* Ensure the dashboard takes up sufficient height */
+.dashboard-container {
+    min-height: 100vh;
+    animation: fadeIn 0.5s ease-in;
+}
+
+/* Center charts and ensure responsiveness */
+.chart-container {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* Custom color for purple text (used in summary metrics) */
+.text-purple {
+    color: #62d531; /* Bootstrap's purple variable */
+}
+
+/* Fade-in animation for the dashboard */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Ensure tables are vertically aligned */
+.table td, .table th {
+    vertical-align: middle;
+}

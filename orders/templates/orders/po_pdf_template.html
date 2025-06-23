@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Helvetica; margin: 0; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .address { text-align: center; margin-bottom: 20px; font-size: 10pt; }
+        .title { text-align: center; font-weight: bold; margin-bottom: 30px; }
+        .to-section { margin-bottom: 20px; }
+        .po-number { float: right; }
+        .date { margin-bottom: 20px; }
+        .delivery-instructions { margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #000; padding: 5px; }
+        .totals { float: right; text-align: right; margin-top: 10px; }
+        .signatures { margin-top: 50px; }
+        .signature-line { width: 200px; border-top: 1px solid #000; margin-top: 40px; display: inline-block; }
+        .footer { margin-top: 30px; font-size: 9pt; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>LEGAL PRACTITIONERS</h2>
+        <h3>Corpus</h3>
+    </div>
+    
+    <div class="address">
+        Piziya Office Park<br>
+        Plot No. 2374<br>
+        Thabo Mbeki Road<br>
+        Mass Media, Lusaka<br>
+        Email: corpus@corpus.co.zm
+    </div>
+    
+    <div class="title">PURCHASE ORDER</div>
+    
+    <div class="to-section">
+        TO: ______ <u>{{ po.destination }}</u> ______
+    </div>
+    
+    <div class="po-number">PO {{ po.purchase_order_number }}</div>
+    
+    <div class="date">Date: ______ / ______ / ______</div>
+    
+    <div class="delivery-instructions">
+        PLEASE SUPPLY AND DELIVER TO PIZIYA OFFICE PARK, THABO MBEKI ROAD
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ITEM NO.</th>
+                <th>DESCRIPTION</th>
+                <th>QTY</th>
+                <th>UNIT PRICE</th>
+                <th>AMOUNT</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in po.items.all %}
+            <tr>
+                <td>{{ item.item_no }}</td>
+                <td>{{ item.description }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.currency }} {{ item.unit_price|floatformat:2 }}</td>
+                <td>{{ item.currency }} {{ item.amount|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if po.special_instructions %}
+    <div class="special-instructions">
+        ( {{ po.special_instructions }} )
+    </div>
+    {% endif %}
+    
+    <div class="totals">
+        <p>SUB TOTAL {{ po.items.first.currency }} {{ po.subtotal|floatformat:2 }}</p>
+        {% if po.include_vat %}
+        <p>VAT {{ po.vat|floatformat:2 }}</p>
+        {% endif %}
+        <p>TOTAL {{ po.items.first.currency }} {{ po.total_amount|floatformat:2 }}</p>
+    </div>
+    
+    <div class="footer">
+        THIS ORDER NO. MUST BE QUOTED ON ALL INVOICES AND DELIVERY NOTES
+    </div>
+    
+    <div class="signatures">
+        <div style="width: 45%; display: inline-block;">
+            <p>ORDERED BY:</p>
+            <div class="signature-line"></div>
+            <p>{{ po.requester.username }}</p>
+        </div>
+        <div style="width: 45%; display: inline-block; float: right;">
+            <p>AUTHORISED BY:</p>
+            <div class="signature-line"></div>
+            <p>FINANCE MANAGER</p>
+            <div style="margin-top: 20px;"></div>
+            <div class="signature-line"></div>
+            <p>MANAGING PARTNER</p>
+        </div>
+    </div>
+</body>
+</html>

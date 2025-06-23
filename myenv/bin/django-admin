@@ -1,4 +1,4 @@
-#!/home/sup3rab3/projects/corpus/purchase-order-system/myenv/bin/python3
+#!/home/sup3rab3/projects/corpus/purchase-order-system/myenv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys

@@ -1,0 +1,70 @@
+bash: */5: No such file or directory
+Traceback (most recent call last):
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/manage.py", line 11, in main
+    from django.core.management import execute_from_command_line
+ModuleNotFoundError: No module named 'django'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/manage.py", line 22, in <module>
+    main()
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/manage.py", line 13, in main
+    raise ImportError(
+ImportError: Couldn't import Django. Are you sure it's installed and available on your PYTHONPATH environment variable? Did you forget to activate a virtual environment?
+Traceback (most recent call last):
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/manage.py", line 11, in main
+    from django.core.management import execute_from_command_line
+ModuleNotFoundError: No module named 'django'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/manage.py", line 22, in <module>
+    main()
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/manage.py", line 13, in main
+    raise ImportError(
+ImportError: Couldn't import Django. Are you sure it's installed and available on your PYTHONPATH environment variable? Did you forget to activate a virtual environment?
+Traceback (most recent call last):
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/manage.py", line 11, in main
+    from django.core.management import execute_from_command_line
+ModuleNotFoundError: No module named 'django'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/manage.py", line 22, in <module>
+    main()
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/manage.py", line 13, in main
+    raise ImportError(
+ImportError: Couldn't import Django. Are you sure it's installed and available on your PYTHONPATH environment variable? Did you forget to activate a virtual environment?
+System check identified some issues:
+
+WARNINGS:
+?: settings.ACCOUNT_AUTHENTICATION_METHOD is deprecated, use: settings.ACCOUNT_LOGIN_METHODS = {'email'}
+?: settings.ACCOUNT_EMAIL_REQUIRED is deprecated, use: settings.ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+Updated ZMW: 1.0 ZMW
+Updated USD: 27.9877 ZMW
+Updated EUR: 31.7360 ZMW
+Updated ZAR: 1.5063 ZMW
+Exchange rates updated at 2025-05-02 10:50:02.330102+00:00
+System check identified some issues:
+
+WARNINGS:
+?: settings.ACCOUNT_AUTHENTICATION_METHOD is deprecated, use: settings.ACCOUNT_LOGIN_METHODS = {'email'}
+?: settings.ACCOUNT_EMAIL_REQUIRED is deprecated, use: settings.ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+Updated ZMW: 1.0 ZMW
+Updated USD: 27.9877 ZMW
+Updated EUR: 31.7360 ZMW
+Updated ZAR: 1.5063 ZMW
+Exchange rates updated at 2025-05-02 10:55:04.954716+00:00
+System check identified some issues:
+
+WARNINGS:
+?: settings.ACCOUNT_AUTHENTICATION_METHOD is deprecated, use: settings.ACCOUNT_LOGIN_METHODS = {'email'}
+?: settings.ACCOUNT_EMAIL_REQUIRED is deprecated, use: settings.ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+Updated ZMW: 1.0 ZMW
+Updated USD: 27.9877 ZMW
+Updated EUR: 31.7360 ZMW
+Updated ZAR: 1.5063 ZMW
+Exchange rates updated at 2025-05-02 11:00:02.871413+00:00

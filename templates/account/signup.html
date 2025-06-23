@@ -1,11 +1,128 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sign Up{% endblock %}
 
 {% block content %}
-<h2>Sign Up</h2>
-<form method="post" action="{% url 'account_signup' %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Sign Up</button>
-</form>
-<p>Already have an account? <a href="{% url 'account_login' %}">Login</a></p>
+<div class="container mt-5"> {# Use Bootstrap container for better spacing and responsiveness #}
+    <div class="row justify-content-center"> {# Center the column(s) horizontally within the container #}
+        <div class="col-md-8 col-lg-6 col-xl-5"> {# Define column width for different screen sizes #}
+
+            <h2 class="mb-4 fw-bold text-dark text-center">Sign Up</h2> {# Center the title text #}
+
+            {% if messages %}
+            <div class="messages mb-4">
+                {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="card p-4 shadow-sm"> {# Card remains the visual container #}
+                <form method="post" action="{% url 'account_signup' %}">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                        {{ form.non_field_errors|striptags }} {# Use striptags for safety and better display #}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+
+                    {# Render the form using form.as_p #}
+                    {{ form.as_p }}
+
+                    <button type="submit" class="btn btn-outline-dark btn-md w-100 px-4 py-2">Sign Up</button>
+                </form>
+            </div> {# End card #}
+
+            <p class="text-center text-muted mt-4">Already have an account? <a href="{% url 'account_login' %}" class="btn btn-link p-0">Login</a></p>
+
+        </div> {# End column #}
+    </div> {# End row #}
+</div> {# End container #}
+
+{# --- Styles --- #}
+<style>
+.card {
+    border-radius: 8px;
+    border: none;
+}
+.form-control {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+.form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    outline: none;
+}
+.form-control.is-invalid, .was-validated .form-control:invalid {
+    border-color: #dc3545;
+}
+.invalid-feedback {
+    display: block;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+.btn-outline-dark {
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+.btn-outline-dark:hover {
+    background-color: #4682b4;
+    color: white;
+    border-color: #4682b4;
+}
+.form-label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+form p {
+    margin-bottom: 1rem;
+}
+form p label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+form p input {
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+form p input:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    outline: none;
+}
+/* Style the error messages from form.as_p */
+form .errorlist {
+    list-style: none;
+    padding: 0;
+    margin: 0.25rem 0 0 0;
+    font-size: 0.875em;
+    color: #dc3545; /* Match Bootstrap's invalid-feedback color */
+}
+form .errorlist li {
+    display: block;
+}
+/* Add is-invalid class to inputs with errors */
+form p:has(.errorlist) input {
+    border-color: #dc3545; /* Match Bootstrap's is-invalid style */
+}
+</style>
 {% endblock %}

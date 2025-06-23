@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Create Petty Cash Request{% endblock %}
+
+{% block content %}
+<div class="fixed-container mt-4">
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <h2 class="mb-4 fw-bold text-dark">Create Petty Cash Request</h2>
+    <p class="text-muted mb-4">For amounts > 1,000, <a href="{% url 'create_purchase_order' %}" class="btn btn-link p-0">request a purchase order instead</a>.</p>
+
+    <form method="post" class="card p-4 shadow-sm">
+        {% csrf_token %}
+        <div class="mb-5">
+            <h4 class="fw-semibold text-dark mb-3">Petty Cash Details</h4>
+            <div id="validation-errors" class="mb-4" style="display: none;">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Error:</strong> <span id="error-message"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <strong>Error:</strong> {{ form.non_field_errors|join:" " }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+            <div class="row g-3">
+                {% for field in form %}
+                {% if field.name != 'selected_approver_email' and field.name != 'department' and field.name != 'non_legal_approver_email' %}
+                <div class="col-md-6">
+                    <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
+                    {% if field.field.widget.input_type == 'select' %}
+                        <select name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-select sleek-select" {% if field.field.required %}required{% endif %}>
+                            <option value="">Select {{ field.label }}</option>
+                            {% for value, label in field.field.choices %}
+                            <option value="{{ value }}" {% if field.value == value|default_if_none:'' %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    {% elif field.name == 'is_legal' %}
+                        <div>
+                            <input type="checkbox" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-check-input" {% if field.value %}checked{% endif %}>
+                        </div>
+                    {% else %}
+                        <input type="{{ field.field.widget.input_type|default:'text' }}"
+                               name="{{ field.name }}"
+                               id="{{ field.id_for_label }}"
+                               class="form-control sleek-input"
+                               value="{{ field.value|default_if_none:'' }}"
+                               {% if field.field.required %}required{% endif %}
+                               {% if field.field.widget.attrs.placeholder %}placeholder="{{ field.field.widget.attrs.placeholder }}"{% endif %}>
+                    {% endif %}
+                    {% if field.errors %}
+                    <small class="text-danger d-block mt-1">{{ field.errors|join:" " }}</small>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endfor %}
+                <!-- Department and Approver fields for legal requests, hidden by default -->
+                <div class="col-md-6 department-field" style="display: none;">
+                    <label for="{{ form.department.id_for_label }}" class="form-label fw-medium">{{ form.department.label }}</label>
+                    <select name="department" id="{{ form.department.id_for_label }}" class="form-select sleek-select">
+                        <option value="">Select Department</option>
+                        {% for value, label in form.department.field.choices %}
+                        <option value="{{ value }}" {% if form.department.value == value|default_if_none:'' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.department.errors %}
+                    <small class="text-danger d-block mt-1">{{ form.department.errors|join:" " }}</small>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 approver-field" style="display: none;">
+                    <label for="{{ form.selected_approver_email.id_for_label }}" class="form-label fw-medium">{{ form.selected_approver_email.label }}</label>
+                    <select name="selected_approver_email" id="{{ form.selected_approver_email.id_for_label }}" class="form-select sleek-select">
+                        <option value="">Select Approver</option>
+                    </select>
+                    {% if form.selected_approver_email.errors %}
+                    <small class="text-danger d-block mt-1">{{ form.selected_approver_email.errors|join:" " }}</small>
+                    {% endif %}
+                </div>
+                <!-- Approver field for non-legal requests, shown by default -->
+                <div class="col-md-6 non-legal-approver-field" style="display: block;">
+                    <label for="{{ form.non_legal_approver_email.id_for_label }}" class="form-label fw-medium">{{ form.non_legal_approver_email.label }}</label>
+                    <select name="non_legal_approver_email" id="{{ form.non_legal_approver_email.id_for_label }}" class="form-select sleek-select">
+                        <option value="">Select Approver</option>
+                        {% for value, label in form.non_legal_approver_email.field.choices %}
+                        <option value="{{ value }}" {% if form.non_legal_approver_email.value == value|default_if_none:'' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.non_legal_approver_email.errors %}
+                    <small class="text-danger d-block mt-1">{{ form.non_legal_approver_email.errors|join:" " }}</small>
+                    {% endif %}
+                    <small class="form-text text-muted">{{ form.non_legal_approver_email.help_text }}</small>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-outline-dark btn-md w-100 px-4 py-2">Submit Petty Cash Request</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const amountInput = document.querySelector('input[name="amount"]');
+    const validationErrorsDiv = document.querySelector('#validation-errors');
+    const errorMessageSpan = document.querySelector('#error-message');
+    const isLegalCheckbox = document.querySelector('input[name="is_legal"]');
+    const departmentField = document.querySelector('.department-field');
+    const approverField = document.querySelector('.approver-field');
+    const nonLegalApproverField = document.querySelector('.non-legal-approver-field');
+    const departmentSelect = document.querySelector('select[name="department"]');
+    const approverSelect = document.querySelector('select[name="selected_approver_email"]');
+    const nonLegalApproverSelect = document.querySelector('select[name="non_legal_approver_email"]');
+
+    // Function to toggle visibility of department, approver, and non-legal approver fields
+    const toggleFieldsVisibility = function() {
+        const isChecked = isLegalCheckbox.checked;
+        departmentField.style.display = isChecked ? 'block' : 'none';
+        approverField.style.display = isChecked ? 'block' : 'none';
+        nonLegalApproverField.style.display = isChecked ? 'none' : 'block';
+        if (!isChecked) {
+            departmentSelect.value = '';
+            approverSelect.innerHTML = '<option value="">Select Approver</option>';
+        } else {
+            nonLegalApproverSelect.value = '';
+        }
+    };
+
+    // Function to update approver options based on department
+    const updateApproverOptions = function() {
+        const department = departmentSelect.value;
+        if (isLegalCheckbox.checked && department) {
+            console.log(`Fetching approvers for department: ${department}`); // Debug log
+            // Encode the department value to handle special characters like '&'
+            const encodedDepartment = encodeURIComponent(department);
+            const fetchUrl = `/get_approvers/?department=${encodedDepartment}`;
+            console.log(`Fetch URL: ${fetchUrl}`); // Debug log to confirm the URL
+            fetch(fetchUrl)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Approvers received:', data.approvers); // Debug log
+                    approverSelect.innerHTML = '<option value="">Select Approver</option>'; // Clear existing options
+                    data.approvers.forEach(approver => {
+                        const option = document.createElement('option');
+                        option.value = approver.email;
+                        option.textContent = `${approver.name} (${approver.role})`;
+                        approverSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching approvers:', error);
+                    approverSelect.innerHTML = '<option value="">Error loading approvers</option>';
+                });
+        } else {
+            approverSelect.innerHTML = '<option value="">Select Approver</option>';
+        }
+    };
+
+    // Form submission validation
+    if (amountInput) {
+        form.addEventListener('submit', function(e) {
+            const amount = parseFloat(amountInput.value) || 0;
+            if (amount > 1000) {
+                e.preventDefault();
+                errorMessageSpan.textContent = "Amount must be ≤ 1,000 for petty cash. Use a purchase order for amounts > 1,000.";
+                validationErrorsDiv.style.display = 'block';
+                validationErrorsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else if (isLegalCheckbox.checked && (!approverSelect.value || !departmentSelect.value)) {
+                e.preventDefault();
+                errorMessageSpan.textContent = "Please select a department and an approver for legal petty cash.";
+                validationErrorsDiv.style.display = 'block';
+                validationErrorsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else if (!isLegalCheckbox.checked && !nonLegalApproverSelect.value) {
+                e.preventDefault();
+                errorMessageSpan.textContent = "Please select an approver for non-legal petty cash.";
+                validationErrorsDiv.style.display = 'block';
+                validationErrorsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                validationErrorsDiv.style.display = 'none';
+            }
+        });
+
+        amountInput.addEventListener('input', function() {
+            const amount = parseFloat(this.value) || 0;
+            if (amount <= 1000) {
+                validationErrorsDiv.style.display = 'none';
+            }
+        });
+    }
+
+    // Event listeners for dynamic behavior
+    if (isLegalCheckbox && departmentField && approverField && nonLegalApproverField) {
+        isLegalCheckbox.addEventListener('change', function() {
+            toggleFieldsVisibility();
+            updateApproverOptions();
+        });
+        departmentSelect.addEventListener('change', updateApproverOptions);
+        toggleFieldsVisibility();  // Initial call to set visibility
+        updateApproverOptions();   // Initial call to populate approvers if needed
+    }
+});
+</script>
+
+<style>
+.fixed-container {
+    width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.card {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0;
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+.sleek-input, .sleek-select {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+.sleek-input:focus, .sleek-select:focus {
+    border-color: #495057;
+    box-shadow: none;
+    outline: none;
+}
+.btn-outline-dark {
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+.btn-outline-dark:hover {
+    background-color: #4682b4;
+    color: white;
+}
+.form-label {
+    margin-bottom: 0.25rem;
+}
+.text-danger {
+    font-size: 0.85rem;
+}
+.form-check-input {
+    margin-top: 0.3rem;
+}
+</style>
+{% endblock %}

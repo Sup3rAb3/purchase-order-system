@@ -1,11 +1,166 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Login{% endblock %}
 
 {% block content %}
-<h2>Login</h2>
-<form method="post" action="{% url 'account_login' %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Login</button>
-</form>
-<p>Don't have an account? <a href="{% url 'account_signup' %}">Sign up</a></p>
+<div class="container mt-5"> {# Use Bootstrap container for better spacing and responsiveness #}
+    <div class="row justify-content-center"> {# Center the column(s) horizontally within the container #}
+        <div class="col-md-8 col-lg-6 col-xl-5"> {# Define column width for different screen sizes #}
+
+            <h2 class="mb-4 fw-bold text-dark text-center">Login</h2> {# Center the title text #}
+
+            {% if messages %}
+            <div class="messages mb-4">
+                {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="card p-4 shadow-sm"> {# Card remains the visual container #}
+                <form method="post" action="{% url 'account_login' %}">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                        {{ form.non_field_errors|striptags }} {# Use striptags for safety and better display #}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+
+                    {% with field=form.login %} {# Assuming field name is 'login' #}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
+                        <input type="{{ field.field.widget.input_type|default:'text' }}"
+                               name="{{ field.name }}"
+                               id="{{ field.id_for_label }}"
+                               class="form-control sleek-input {% if field.errors %}is-invalid{% endif %}"
+                               value="{{ field.value|default_if_none:'' }}"
+                               required
+                               autofocus
+                               placeholder="{{ field.field.widget.attrs.placeholder|default:'Username or Email' }}">
+                        {% if field.errors %}
+                        <div class="invalid-feedback">
+                            {{ field.errors|striptags }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endwith %}
+
+                    {% with field=form.password %} {# Assuming field name is 'password' #}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
+                        <input type="{{ field.field.widget.input_type }}" {# Should be 'password' #}
+                               name="{{ field.name }}"
+                               id="{{ field.id_for_label }}"
+                               class="form-control sleek-input {% if field.errors %}is-invalid{% endif %}"
+                               required
+                               placeholder="{{ field.field.widget.attrs.placeholder|default:'Password' }}">
+                         {% if field.errors %}
+                        <div class="invalid-feedback">
+                            {{ field.errors|striptags }}
+                        </div>
+                        {% endif %}
+                         {# Optional: Add forgot password link here if needed #}
+                         {# <div class="text-end mt-1"><a href="{% url 'account_reset_password' %}" class="small text-muted text-decoration-none">Forgot Password?</a></div> #}
+                     </div>
+                    {% endwith %}
+
+                    {% if form.remember %} {# Check if the remember field exists (common in django-allauth) #}
+                    {% with field=form.remember %}
+                    <div class="mb-4 form-check">
+                         <input type="checkbox" {# Checkbox type is specific #}
+                               name="{{ field.name }}"
+                               id="{{ field.id_for_label }}"
+                               class="form-check-input {% if field.errors %}is-invalid{% endif %}"
+                               {% if field.value %}checked{% endif %}> {# Add checked attribute if value is true #}
+                        <label class="form-check-label" for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+                         {% if field.errors %}
+                         {# Display errors differently for checkboxes if needed, or use invalid-feedback concept #}
+                         <small class="text-danger d-block mt-1">{{ field.errors|striptags }}</small>
+                        {% endif %}
+                    </div>
+                    {% endwith %}
+                    {% endif %}
+
+                     {# Render any hidden fields (e.g., 'next' redirect parameter) #}
+                     {% for hidden_field in form.hidden_fields %}
+                        {{ hidden_field }}
+                     {% endfor %}
+
+                    <button type="submit" class="btn btn-outline-dark btn-md w-100 px-4 py-2">Login</button>
+                </form>
+            </div> {# End card #}
+
+            <p class="text-center text-muted mt-4">Don't have an account? <a href="{% url 'account_signup' %}" class="btn btn-link p-0">Sign up</a></p>
+
+        </div> {# End column #}
+    </div> {# End row #}
+</div> {# End container #}
+
+{# --- Styles --- #}
+{# Removed fixed-container styles as Bootstrap grid handles centering #}
+<style>
+.card {
+    /* max-width remains controlled by col-* classes */
+    border-radius: 8px;
+    border: none;
+    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); */ /* Kept from original */
+}
+.sleek-input { /* Keep custom input style if desired */
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 0.375rem 0.75rem; /* Align with BS default */
+    font-size: 1rem; /* Align with BS default */
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+.sleek-input:focus {
+    border-color: #86b7fe; /* Standard Bootstrap focus color */
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Standard Bootstrap focus shadow */
+    outline: none;
+}
+
+/* Styles specifically for Bootstrap validation */
+.form-control.is-invalid, .was-validated .form-control:invalid {
+    border-color: #dc3545; /* Standard BS error color */
+}
+.invalid-feedback {
+    display: block; /* Ensure error messages show */
+    font-size: 0.875em;
+}
+/* Align checkbox nicely */
+.form-check {
+    padding-left: 1.5em; /* Add padding to make space for the input */
+}
+.form-check .form-check-input {
+    float: left;
+    margin-left: -1.5em; /* Position input correctly */
+    margin-top: 0.2em; /* Adjust vertical alignment if needed */
+}
+.form-check-label {
+    margin-bottom: 0; /* Prevent extra space below label */
+}
+
+.btn-outline-dark {
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+.btn-outline-dark:hover {
+    background-color: #4682b4; /* Match base.html header */
+    color: white;
+    border-color: #4682b4; /* Ensure border color changes too */
+}
+.form-label {
+    margin-bottom: 0.5rem; /* Standard Bootstrap margin */
+}
+</style>
 {% endblock %}
