@@ -11,10 +11,16 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+# Add to settings.py
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+DEBUG = True  # Should be True during development
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -24,10 +30,16 @@ SECRET_KEY = 'django-insecure-0fliu9^@ym@*a9!e2(+p2j!op8!8$5mktc!$#wo5zgd@7cm(zd
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
 
-SITE_ID = 1
+# SESSIONS
+SESSION_COOKIE_AGE = 1800  # 30 minutes (in seconds)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Expire session when browser closes
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
+SESSION_COOKIE_SAMESITE = 'Lax'  # Protect against CSRF attacks
+
+
 
 #EMAIL CONFIG 
 
@@ -41,19 +53,28 @@ EMAIL_HOST_USER = 'amanda@corpus.co.zm'  # Your Outlook email address
 EMAIL_HOST_PASSWORD = 'Corpus2024!'  # Your Outlook password or app password
 
 #ALLAUTH SETTINGS
+ACCOUNT_SESSION_REMEMBER = None  # Don't extend session duration if "Remember Me" is checked
+ACCOUNT_EMAIL_SUBJECT_PREFIX = '[JurisPO] '
 ACCOUNT_EMAIL_REQUIRED = True  # Require email for signup
-ACCOUNT_EMAIL_VERIFICATION = 'optional'  # Send a verification email
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # Send a verification email
 ACCOUNT_AUTHENTICATION_METHOD = 'email'  # Use email for authentication
 ACCOUNT_UNIQUE_EMAIL = True  # Ensure emails are unique
+ACCOUNT_SIGNUP_REDIRECT_URL = '/create/'
 LOGIN_REDIRECT_URL = '/create/'  # Redirect after login
+SITE_ID = 1
+SITE_NAME = "JurisPO"  # Overrides 'example.com'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # Authentication Backend
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
-# Application definition
 
+#API KEY
+EXCHANGE_RATE_API_KEY = '4af2912fe8ab51d42219c8a2'
+
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -61,6 +82,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',  # For human-readable dates
     'orders',
     'django.contrib.sites',  # Required for allauth
     'allauth',
@@ -149,7 +171,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+# Add this to your settings.py
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For production
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Your development static files
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

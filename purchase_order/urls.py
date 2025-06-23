@@ -15,16 +15,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django import views
 from django.contrib import admin
 from django.urls import path, include
-from django.urls import path
-from orders.views import approve_po, deny_po
-from orders.views import create_purchase_order  # Ensure this import is correct
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),  # Admin URL
     path('accounts/', include('allauth.urls')),  # Allauth URLs
-    path('create/', create_purchase_order, name='create_purchase_order'),  # Create Purchase Order URL
-    path('approve/<str:token>/', approve_po, name='approve_purchase_order'), # Approve Purchase Order
-    path('deny/<str:token>/', deny_po, name='deny_purchase_order'), # Deny Purchase
-]
+path('', include('orders.urls')),  # Include orders URLs without a prefix
+
+] 
+# Add this ONLY in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
