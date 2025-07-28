@@ -541,3 +541,134 @@ WARNINGS:
 ?: settings.ACCOUNT_EMAIL_REQUIRED is deprecated, use: settings.ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 Found 0 pending approvals
 Checked approval timeouts and resent to fallbacks
+Traceback (most recent call last):
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/manage.py", line 11, in main
+    from django.core.management import execute_from_command_line
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/myenv/lib/python3.10/site-packages/django/core/management/__init__.py", line 19, in <module>
+    from django.core.management.base import (
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/myenv/lib/python3.10/site-packages/django/core/management/base.py", line 14, in <module>
+    from django.core import checks
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/myenv/lib/python3.10/site-packages/django/core/checks/__init__.py", line 19, in <module>
+    import django.core.checks.commands  # NOQA isort:skip
+ModuleNotFoundError: No module named 'django.core.checks.commands'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/manage.py", line 22, in <module>
+    main()
+  File "/home/sup3rab3/projects/corpus/purchase-order-system/manage.py", line 13, in main
+    raise ImportError(
+ImportError: Couldn't import Django. Are you sure it's installed and available on your PYTHONPATH environment variable? Did you forget to activate a virtual environment?
+System check identified some issues:
+
+WARNINGS:
+?: (staticfiles.W004) The directory '/home/sup3rab3/projects/corpus/purchase-order-system/static' in the STATICFILES_DIRS setting does not exist.
+?: settings.ACCOUNT_AUTHENTICATION_METHOD is deprecated, use: settings.ACCOUNT_LOGIN_METHODS = {'email'}
+?: settings.ACCOUNT_EMAIL_REQUIRED is deprecated, use: settings.ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+Found 9 pending approvals
+Processing approval for PO PO-2025-00000019 by Senior Accountant
+Time elapsed for PO PO-2025-00000019: 42 days, 23:59:02.215351
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000019
+Notification sent to requester for PO PO-2025-00000019
+No fallback approver for PO PO-2025-00000019
+Processing approval for PO PO-2025-00000019 by Senior Accountant
+Time elapsed for PO PO-2025-00000019: 15 days, 5:59:55.296923
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000019
+Notification sent to requester for PO PO-2025-00000019
+No fallback approver for PO PO-2025-00000019
+Processing approval for PO PO-2025-00000019 by Senior Accountant
+Time elapsed for PO PO-2025-00000019: 4 days, 23:59:52.762515
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000019
+Notification sent to requester for PO PO-2025-00000019
+No fallback approver for PO PO-2025-00000019
+Processing approval for PO PO-2025-00000019 by Finance Manager
+Time elapsed for PO PO-2025-00000019: 44 days, 2:11:28.818751
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000019
+Notification sent to requester for PO PO-2025-00000019
+Escalating to fallback Senior Accountant for PO PO-2025-00000019
+New approval created and email sent for PO PO-2025-00000019
+Processing approval for PO PO-2025-00000019 by Senior Accountant
+Time elapsed for PO PO-2025-00000019: 15 days, 23:59:21.488563
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000019
+Notification sent to requester for PO PO-2025-00000019
+No fallback approver for PO PO-2025-00000019
+Processing approval for PO PO-2025-00000021 by General Manager
+Time elapsed for PO PO-2025-00000021: 6 days, 0:43:48.722586
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000021
+Notification sent to requester for PO PO-2025-00000021
+Escalating to fallback Finance Manager for PO PO-2025-00000021
+New approval created and email sent for PO PO-2025-00000021
+Processing approval for PO PO-2025-00000021 by Finance Manager
+Time elapsed for PO PO-2025-00000021: 6 days, 0:43:53.488666
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000021
+Notification sent to requester for PO PO-2025-00000021
+Escalating to fallback Senior Accountant for PO PO-2025-00000021
+New approval created and email sent for PO PO-2025-00000021
+Processing approval for PO PO-2025-00000021 by Finance Manager
+Time elapsed for PO PO-2025-00000021: 5 days, 0:00:54.880272
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000021
+Notification sent to requester for PO PO-2025-00000021
+Escalating to fallback Senior Accountant for PO PO-2025-00000021
+New approval created and email sent for PO PO-2025-00000021
+Processing approval for PO PO-2025-00000021 by Senior Accountant
+Time elapsed for PO PO-2025-00000021: 5 days, 0:00:54.690657
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000021
+Notification sent to requester for PO PO-2025-00000021
+No fallback approver for PO PO-2025-00000021
+PO PO-2025-00000021 rejected due to all timeouts
+Checked approval timeouts and resent to fallbacks
+System check identified some issues:
+
+WARNINGS:
+?: (staticfiles.W004) The directory '/home/sup3rab3/projects/corpus/purchase-order-system/static' in the STATICFILES_DIRS setting does not exist.
+?: settings.ACCOUNT_AUTHENTICATION_METHOD is deprecated, use: settings.ACCOUNT_LOGIN_METHODS = {'email'}
+?: settings.ACCOUNT_EMAIL_REQUIRED is deprecated, use: settings.ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+Found 6 pending approvals
+Processing approval for PO PO-2025-00000019 by Senior Accountant
+Time elapsed for PO PO-2025-00000019: 68 days, 17:59:01.069433
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000019
+Notification sent to requester for PO PO-2025-00000019
+No fallback approver for PO PO-2025-00000019
+Processing approval for PO PO-2025-00000019 by Senior Accountant
+Time elapsed for PO PO-2025-00000019: 40 days, 23:59:58.269270
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000019
+Notification sent to requester for PO PO-2025-00000019
+No fallback approver for PO PO-2025-00000019
+Processing approval for PO PO-2025-00000019 by Senior Accountant
+Time elapsed for PO PO-2025-00000019: 30 days, 17:59:56.060192
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000019
+Notification sent to requester for PO PO-2025-00000019
+No fallback approver for PO PO-2025-00000019
+Processing approval for PO PO-2025-00000019 by Senior Accountant
+Time elapsed for PO PO-2025-00000019: 25 days, 17:59:46.170807
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000019
+Notification sent to requester for PO PO-2025-00000019
+No fallback approver for PO PO-2025-00000019
+Processing approval for PO PO-2025-00000019 by Finance Manager
+Time elapsed for PO PO-2025-00000019: 69 days, 20:11:30.673631
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000019
+Notification sent to requester for PO PO-2025-00000019
+Escalating to fallback Senior Accountant for PO PO-2025-00000019
+New approval created and email sent for PO PO-2025-00000019
+Processing approval for PO PO-2025-00000019 by Senior Accountant
+Time elapsed for PO PO-2025-00000019: 41 days, 17:59:07.890554
+Availability timeout: 1 day, 0:00:00
+Timeout detected for PO PO-2025-00000019
+Notification sent to requester for PO PO-2025-00000019
+No fallback approver for PO PO-2025-00000019
+Checked approval timeouts and resent to fallbacks
