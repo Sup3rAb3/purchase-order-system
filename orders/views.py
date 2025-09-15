@@ -956,7 +956,7 @@ def generate_petty_cash_pdf(petty_cash):
     return f"{settings.MEDIA_URL}petty_cash/{filename}"
 
 def home(request):
-    return render(request, '/create_po.html')
+    return render(request, 'orders/create_po.html')
 
 @login_required
 def custom_logout(request):

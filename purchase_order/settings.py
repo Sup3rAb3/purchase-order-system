@@ -131,7 +131,7 @@ DATABASES = {
         'NAME': 'purchase_order_db',
         'USER': 'sup3rab3',
         'PASSWORD': 'Sup3r@dmin_',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
@@ -171,11 +171,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-# Add this to your settings.py
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For production
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # /app/staticfiles for collected files
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # Your development static files
+    os.path.join(BASE_DIR, 'purchase_order', 'static'),  # /app/purchase_order/static for development files
 ]
 
 # Default primary key field type
