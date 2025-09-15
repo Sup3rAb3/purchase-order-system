@@ -731,7 +731,7 @@ def approve_po(request, token):
         po.update_approval_status()
     
         if po.status == "Approved":
-            pdf_url = f"http://127.0.0.1:8000{generate_po_pdf(po)}"
+            pdf_url = f"http://127.0.0.1:8080{generate_po_pdf(po)}"
             send_final_decision_email(approval, "approved", pdf_url)
         elif po.status == "Rejected":
             send_final_decision_email(approval, "denied")
@@ -741,7 +741,7 @@ def approve_po(request, token):
         petty_cash = approval.petty_cash_request
         petty_cash.status = "Approved"
         petty_cash.save()
-        pdf_url = f"http://127.0.0.1:8000{generate_petty_cash_pdf(petty_cash)}"
+        pdf_url = f"http://127.0.0.1:8080{generate_petty_cash_pdf(petty_cash)}"
         send_petty_cash_approved_email(petty_cash, pdf_url)
         approval.send_final_decision_email("approved")
         return HttpResponse("Petty cash approval successful. Thank you.")
