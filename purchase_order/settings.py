@@ -129,13 +129,14 @@ WSGI_APPLICATION = 'purchase_order.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'purchase_order_db',
-        'USER': 'sup3rab3',
-        'PASSWORD': 'Sup3r@dmin_',
-        'HOST': 'db',
-        'PORT': '5432',
+        'NAME': os.environ.get('DB_NAME', 'purchase_order_db'),
+        'USER': os.environ.get('DB_USER', 'sup3rab3'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'Sup3r@dmin_'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
+
 
 
 # Password validation
