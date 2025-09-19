@@ -65,6 +65,9 @@ LOGIN_REDIRECT_URL = '/create/'  # Redirect after login
 SITE_ID = 1
 SITE_NAME = "JurisPO"  # Overrides 'example.com'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# Fix deprecated settings
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 
 # Authentication Backend
 AUTHENTICATION_BACKENDS = [
