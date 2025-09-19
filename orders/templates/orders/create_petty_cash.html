@@ -16,10 +16,17 @@
     </div>
     {% endif %}
 
-    <h2 class="mb-4 fw-bold text-dark">Create Petty Cash Request</h2>
-    <p class="text-muted mb-4">For amounts > 1,000, <a href="{% url 'create_purchase_order' %}" class="btn btn-link p-0">request a purchase order instead</a>.</p>
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <strong>Error:</strong> {{ form.non_field_errors|join:" " }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
 
-    <form method="post" class="card p-4 shadow-sm">
+    <h2 class="mb-4 fw-bold text-dark">Create Petty Cash Request</h2>
+    <p class="text-muted mb-4">For amounts > 1,000 ZMW, <a href="{% url 'create_purchase_order' %}" class="btn btn-link p-0">request a purchase order instead</a>.</p>
+
+    <form method="post" class="card p-4 shadow-sm" id="pettyCashForm">
         {% csrf_token %}
         <div class="mb-5">
             <h4 class="fw-semibold text-dark mb-3">Petty Cash Details</h4>
@@ -29,12 +36,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </div>
-            {% if form.non_field_errors %}
-            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-                <strong>Error:</strong> {{ form.non_field_errors|join:" " }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endif %}
             <div class="row g-3">
                 {% for field in form %}
                 {% if field.name != 'selected_approver_email' and field.name != 'department' and field.name != 'non_legal_approver_email' %}
@@ -58,6 +59,7 @@
                                class="form-control sleek-input"
                                value="{{ field.value|default_if_none:'' }}"
                                {% if field.field.required %}required{% endif %}
+                               {% if field.name == 'amount' %}step="0.01" min="0"{% endif %}
                                {% if field.field.widget.attrs.placeholder %}placeholder="{{ field.field.widget.attrs.placeholder }}"{% endif %}>
                     {% endif %}
                     {% if field.errors %}
@@ -108,9 +110,16 @@
     </form>
 </div>
 
+<!-- Loading Overlay -->
+<div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1050;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 1.25rem; font-weight: 500; background: #333; padding: 1rem 2rem; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        Processing your request...
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
+    const form = document.querySelector('#pettyCashForm');
     const amountInput = document.querySelector('input[name="amount"]');
     const validationErrorsDiv = document.querySelector('#validation-errors');
     const errorMessageSpan = document.querySelector('#error-message');
@@ -121,6 +130,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const departmentSelect = document.querySelector('select[name="department"]');
     const approverSelect = document.querySelector('select[name="selected_approver_email"]');
     const nonLegalApproverSelect = document.querySelector('select[name="non_legal_approver_email"]');
+
+    // Function to format numbers with commas
+    function formatNumber(number) {
+        return Number(number).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
     // Function to toggle visibility of department, approver, and non-legal approver fields
     const toggleFieldsVisibility = function() {
@@ -140,16 +154,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const updateApproverOptions = function() {
         const department = departmentSelect.value;
         if (isLegalCheckbox.checked && department) {
-            console.log(`Fetching approvers for department: ${department}`); // Debug log
-            // Encode the department value to handle special characters like '&'
+            console.log(`Fetching approvers for department: ${department}`);
             const encodedDepartment = encodeURIComponent(department);
             const fetchUrl = `/get_approvers/?department=${encodedDepartment}`;
-            console.log(`Fetch URL: ${fetchUrl}`); // Debug log to confirm the URL
+            console.log(`Fetch URL: ${fetchUrl}`);
             fetch(fetchUrl)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    console.log('Approvers received:', data.approvers); // Debug log
-                    approverSelect.innerHTML = '<option value="">Select Approver</option>'; // Clear existing options
+                    console.log('Approvers received:', data.approvers);
+                    approverSelect.innerHTML = '<option value="">Select Approver</option>';
                     data.approvers.forEach(approver => {
                         const option = document.createElement('option');
                         option.value = approver.email;
@@ -166,28 +184,42 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Form submission validation
-    if (amountInput) {
+    // Form submission validation and loading overlay
+    if (form && amountInput) {
         form.addEventListener('submit', function(e) {
             const amount = parseFloat(amountInput.value) || 0;
             if (amount > 1000) {
                 e.preventDefault();
-                errorMessageSpan.textContent = "Amount must be ≤ 1,000 for petty cash. Use a purchase order for amounts > 1,000.";
+                errorMessageSpan.textContent = `Amount (${formatNumber(amount)} ZMW) must be ≤ 1,000 ZMW for petty cash. Use a purchase order for amounts > 1,000 ZMW.`;
                 validationErrorsDiv.style.display = 'block';
                 validationErrorsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
             } else if (isLegalCheckbox.checked && (!approverSelect.value || !departmentSelect.value)) {
                 e.preventDefault();
                 errorMessageSpan.textContent = "Please select a department and an approver for legal petty cash.";
                 validationErrorsDiv.style.display = 'block';
                 validationErrorsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
             } else if (!isLegalCheckbox.checked && !nonLegalApproverSelect.value) {
                 e.preventDefault();
                 errorMessageSpan.textContent = "Please select an approver for non-legal petty cash.";
                 validationErrorsDiv.style.display = 'block';
                 validationErrorsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
             } else {
                 validationErrorsDiv.style.display = 'none';
             }
+
+            // Show loading overlay
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'block';
+
+            // Hide overlay on page reload (handles back/forward navigation)
+            window.onpageshow = function(event) {
+                if (event.persisted) {
+                    overlay.style.display = 'none';
+                }
+            };
         });
 
         amountInput.addEventListener('input', function() {
@@ -228,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .sleek-input, .sleek-select {
     border: 1px solid #ced4da;
     border-radius: 4px;
-    padding: 0.5rem 0.75rem;
+    padding: 0.25rem 0.5rem;
     font-size: 0.9rem;
     width: 100%;
     box-sizing: border-box;
@@ -238,6 +270,12 @@ document.addEventListener('DOMContentLoaded', function() {
     border-color: #495057;
     box-shadow: none;
     outline: none;
+}
+.sleek-select {
+    height: 30px;
+}
+input[name="amount"] {
+    text-align: right;
 }
 .btn-outline-dark {
     border-radius: 4px;
@@ -256,6 +294,31 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 .form-check-input {
     margin-top: 0.3rem;
+}
+
+/* Loading Overlay Styling */
+#loadingOverlay {
+    z-index: 1050;
+}
+#loadingOverlay div {
+    background: #333;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+#loadingOverlay div::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #fff;
+    border-top: 3px solid transparent;
+    border-radius: 50%;
+    margin-left: 1rem;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 </style>
 {% endblock %}
