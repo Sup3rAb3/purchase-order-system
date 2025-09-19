@@ -28,7 +28,7 @@ services:
       - DB_PASSWORD=Sup3r@dmin_
       - DB_HOST=db
       - DB_PORT=5432
-      - SITE_DOMAIN=192.168.0.129:8080
+      - SITE_DOMAIN=${SITE_DOMAIN:-127.0.0.1:8080} 
     networks:
       - app_network
 volumes:
