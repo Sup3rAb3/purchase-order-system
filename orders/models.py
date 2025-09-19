@@ -7,6 +7,7 @@ from decimal import Decimal
 from django.core.mail import send_mail, EmailMessage
 from django.utils.crypto import get_random_string
 from django.utils import timezone  # for timezone.now()
+from django.conf import settings
 
 # Add the SequenceNumber model at the top
 class SequenceNumber(models.Model):
@@ -282,8 +283,8 @@ class SignatoryApproval(models.Model):
     def send_approval_email(self):
         self.last_email_sent = timezone.now()
         self.save()
-        approve_url = f"http://127.0.0.1:8080/approve/{self.approval_token}/"
-        deny_url = f"http://127.0.0.1:8080/deny/{self.approval_token}/"
+        approve_url = f"http://{settings.SITE_DOMAIN}/approve/{self.approval_token}/"
+        deny_url = f"http://{settings.SITE_DOMAIN}/deny/{self.approval_token}/"
 
         if self.purchase_order:
             po = self.purchase_order
