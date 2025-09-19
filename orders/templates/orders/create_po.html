@@ -32,7 +32,7 @@
     <h2 class="mb-4 fw-bold text-dark">Create Purchase Order</h2>
     <p class="text-muted mb-4">For amounts ≤ 1,000 ZMW, <a href="{% url 'create_petty_cash' %}" class="btn btn-link p-0">request petty cash instead</a>.</p>
 
-    <form method="post" class="card p-4 shadow-sm" enctype="multipart/form-data">
+    <form method="post" class="card p-4 shadow-sm" enctype="multipart/form-data" id="poForm">
         {% csrf_token %}
         <div class="mb-5">
             <h4 class="fw-semibold text-dark mb-3">Purchase Order Details</h4>
@@ -187,6 +187,13 @@
 
         <button type="submit" class="btn btn-outline-dark btn-md mt-5 w-100 px-4 py-2">Submit Purchase Order</button>
     </form>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1050;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 1.25rem; font-weight: 500; background: #333; padding: 1rem 2rem; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        Processing your request...
+    </div>
 </div>
 
 <script>
@@ -420,8 +427,8 @@
             includeVatCheckbox.addEventListener('change', calculateTotals);
         }
     
-        // --- Form Submission Validation ---
-        document.querySelector('form').addEventListener('submit', function(e) {
+        // --- Form Submission Validation and Loading Screen ---
+        document.getElementById('poForm').addEventListener('submit', function(e) {
             let totalZmw = 0;
             let firstCurrency = null;
             const rows = document.querySelectorAll('.item-form');
@@ -452,6 +459,17 @@
                 return;
             }
             calculateTotals();
+
+            // Show loading overlay
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'block';
+
+            // Optional: Hide on page reload (basic approach)
+            window.onpageshow = function(event) {
+                if (event.persisted) {
+                    overlay.style.display = 'none';
+                }
+            };
         });
     
         // --- Initial Calculation ---
@@ -578,6 +596,31 @@ input[name$="-unit_price"] {
 .totals-card .form-control {
     width: 100%;
     max-width: 100%;
+}
+
+/* Loading Overlay Styling */
+#loadingOverlay {
+    z-index: 1050; /* Above other content */
+}
+#loadingOverlay div {
+    background: #333; /* Dark background to match theme */
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+#loadingOverlay div::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #fff;
+    border-top: 3px solid transparent;
+    border-radius: 50%;
+    margin-left: 1rem;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 </style>
 {% endblock %}
