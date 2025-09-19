@@ -16,6 +16,7 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SITE_DOMAIN = os.environ.get("SITE_DOMAIN", "127.0.0.1:8080")
 
 # Add to settings.py
 MEDIA_URL = '/media/'
