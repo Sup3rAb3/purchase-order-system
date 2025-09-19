@@ -135,7 +135,7 @@ DATABASES = {
         'NAME': os.environ.get('DB_NAME', 'purchase_order_db'),
         'USER': os.environ.get('DB_USER', 'sup3rab3'),
         'PASSWORD': os.environ.get('DB_PASSWORD', 'Sup3r@dmin_'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'HOST': os.environ.get('DB_HOST', 'db'),
         'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }

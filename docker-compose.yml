@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   db:
     image: postgres:15
@@ -9,9 +10,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-
+    networks:
+      - app_network
   web:
     build: .
+    image: sup3rab3/purchase-order-system-web:latest
     command: python manage.py runserver 0.0.0.0:8080
     volumes:
       - .:/app
@@ -20,12 +23,17 @@ services:
     depends_on:
       - db
     environment:
-      DEBUG: 1
-      DB_NAME: purchase_order_db
-      DB_USER: sup3rab3
-      DB_PASSWORD: Sup3r@dmin_
-      DB_HOST: db
-      DB_PORT: 5432
-
+      - DEBUG=1
+      - DB_NAME=purchase_order_db
+      - DB_USER=sup3rab3
+      - DB_PASSWORD=Sup3r@dmin_
+      - DB_HOST=db
+      - DB_PORT=5432
+      - SITE_DOMAIN=192.168.0.129:8080
+    networks:
+      - app_network
 volumes:
   postgres_data:
+networks:
+  app_network:
+    driver: bridge
