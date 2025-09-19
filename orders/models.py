@@ -286,6 +286,14 @@ class SignatoryApproval(models.Model):
         approve_url = f"http://{settings.SITE_DOMAIN}/approve/{self.approval_token}/"
         deny_url = f"http://{settings.SITE_DOMAIN}/deny/{self.approval_token}/"
 
+        # Add quotation links if they exist
+        quotation_links = ""
+        if hasattr(po, 'quotations') and po.quotations.exists():
+            quotation_links = "<h3>Attached Quotations</h3><ul>"
+            for i, quotation in enumerate(po.quotations.all(), 1):
+                quotation_links += f"<li><a href='http://{settings.SITE_DOMAIN}{quotation.file.url}'>Quotation {i}</a></li>"
+            quotation_links += "</ul>"
+
         if self.purchase_order:
             po = self.purchase_order
             currency = po.items.first().currency if po.items.exists() else 'ZMW'
