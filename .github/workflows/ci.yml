@@ -19,8 +19,8 @@ jobs:
       run: docker build -t sup3rab3/purchase-order-system-web:latest .
 
     - name: Start services with docker-compose
-      run: docker-compose up -d
+      run: docker compose up -d
 
     - name: Stop services
       if: always()
-      run: docker-compose down
+      run: docker compose down --remove-orphans
