@@ -25,9 +25,11 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Start services with docker compose
+        working-directory: /home/sup3rab3/actions-runner/_work/purchase-order-system/purchase-order-system
         run: docker compose up -d --build --force-recreate
 
       - name: Wait for web service to be healthy
+        working-directory: /home/sup3rab3/actions-runner/_work/purchase-order-system/purchase-order-system
         run: |
           for i in {1..18}; do
             HEALTH_STATUS=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q web))
@@ -44,9 +46,11 @@ jobs:
           fi
 
       - name: Check container logs
+        working-directory: /home/sup3rab3/actions-runner/_work/purchase-order-system/purchase-order-system
         run: docker compose logs web
 
       - name: Test app inside running web container
+        working-directory: /home/sup3rab3/actions-runner/_work/purchase-order-system/purchase-order-system
         run: docker compose exec web curl -f http://localhost:8080 || exit 1
 
       - name: Deploy to production
