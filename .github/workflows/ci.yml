@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted  # Use self-hosted runner
 
     steps:
       - name: Checkout code
@@ -45,11 +45,11 @@ jobs:
         if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
         uses: appleboy/ssh-action@master
         with:
-          host: 192.168.0.129  # Your prod server IP
+          host: 192.168.0.129  # Local IP works with self-hosted runner
           username: ubuntu-adm
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/ubuntu-adm/prod/purchase-order-system  # Confirmed path
+            cd /home/ubuntu-adm/prod/purchase-order-system
             git pull origin main
             docker compose down
             docker compose up -d --build --force-recreate
