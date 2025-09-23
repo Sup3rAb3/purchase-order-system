@@ -18,28 +18,28 @@ jobs:
     - name: Build Docker image
       run: docker build -t sup3rab3/purchase-order-system-web:latest .
 
-    - name: Start services with docker-compose
+    - name: Start services with docker compose
       run: docker compose up -d
 
     - name: Wait for PostgreSQL to be ready
       run: |
-        # Initial buffer and max 60 seconds total wait
-        for i in {1..12}; do
+        # Initial buffer and max 90 seconds total wait
+        for i in {1..18}; do
           if docker compose exec db pg_isready -U sup3rab3 -d purchase_order_db; then
             echo "PostgreSQL is ready!"
             break
           fi
-          echo "Waiting for PostgreSQL... Attempt $i/12"
+          echo "Waiting for PostgreSQL... Attempt $i/18"
           sleep 5
         done
-        if [ $i -eq 12 ]; then
-          echo "PostgreSQL failed to start within 60 seconds"
+        if [ $i -eq 18 ]; then
+          echo "PostgreSQL failed to start within 90 seconds"
           exit 1
         fi
 
     - name: Check container logs
       run: |
-        sleep 5  # Buffer after DB is ready
+        sleep 10  # Longer buffer for runserver
         docker compose logs web
 
     - name: Test app availability from container
@@ -48,4 +48,4 @@ jobs:
 
     - name: Stop services
       if: always()
-      run: docker compose down --remove-orphans
+      run: docker compose down
