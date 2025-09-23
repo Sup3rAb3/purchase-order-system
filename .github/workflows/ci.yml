@@ -10,6 +10,10 @@ jobs:
     runs-on: self-hosted  # Use self-hosted runner
 
     steps:
+      - name: Fix permissions on workspace
+        run: sudo chown -R $USER:$USER ${{ github.workspace }}
+        continue-on-error: true
+
       - name: Checkout code
         uses: actions/checkout@v4
 
