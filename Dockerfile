@@ -10,6 +10,9 @@ COPY . .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Add this line somewhere after setting up Python
+RUN pip install --no-cache-dir gunicorn
+
 # Expose Django's new port
 EXPOSE 8080
 
