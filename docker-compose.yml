@@ -21,7 +21,7 @@ services:
   web:
     build: .
     image: sup3rab3/purchase-order-system-web:latest
-    command: sh -c "python wait_for_db.py && python manage.py migrate && python manage.py runserver 0.0.0.0:8080"
+    command: sh -c "python wait_for_db.py && python manage.py migrate && gunicorn purchase_order.wsgi:application --bind 0.0.0.0:8080 --workers 3"
     volumes:
       - .:/app
     ports:
@@ -29,7 +29,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-        
+
     environment:
       - DEBUG=1
       - DB_NAME=purchase_order_db
