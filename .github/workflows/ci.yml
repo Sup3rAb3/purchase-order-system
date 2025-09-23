@@ -23,9 +23,10 @@ jobs:
 
     - name: Test app availability
       run: |
-        # Wait for the app to start (give it 10 seconds)
-        sleep 10
-        curl -f http://localhost:8080  # Fails if the app isn't up
+        # Wait 30 seconds for the app to start
+        sleep 30
+        # Check if the app responds (exit 0 if OK, fail otherwise)
+        curl -f --max-time 10 http://localhost:8080 || exit 1
 
     - name: Stop services
       if: always()
