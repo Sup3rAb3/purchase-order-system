@@ -25,7 +25,7 @@ jobs:
       run: |
         # Initial buffer and max 90 seconds total wait
         for i in {1..18}; do
-          if docker compose exec db pg_isready -U sup3rab3 -d purchase_order_db; then
+          if docker compose exec -T db pg_isready -U sup3rab3 -d purchase_order_db; then
             echo "PostgreSQL is ready!"
             break
           fi
@@ -44,7 +44,7 @@ jobs:
 
     - name: Test app availability from container
       run: |
-        docker compose exec web curl -f http://localhost:8080 || exit 1
+        docker compose exec -T web curl -f http://localhost:8080 || exit 1
 
     - name: Stop services
       if: always()
