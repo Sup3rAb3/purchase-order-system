@@ -19,12 +19,12 @@ jobs:
         run: |
           # Ensure the directory exists and is writable
           mkdir -p /home/sup3rab3/actions-runner/_work/purchase-order-system/purchase-order-system
-          # Use sudo to force remove if permissions are an issue
-          sudo rm -rf /home/sup3rab3/actions-runner/_work/purchase-order-system/purchase-order-system/* || true
-          find /home/sup3rab3/actions-runner/_work/ -name "__pycache__" -type d -exec sudo rm -rf {} + 2>/dev/null || true
-          # Reset permissions
-          sudo chown -R sup3rab3:sup3rab3 /home/sup3rab3/actions-runner/_work/purchase-order-system/
-          sudo chmod -R u+w /home/sup3rab3/actions-runner/_work/purchase-order-system/
+          # Clean it only if it exists
+          [ -d "/home/sup3rab3/actions-runner/_work/purchase-order-system/purchase-order-system" ] && rm -rf /home/sup3rab3/actions-runner/_work/purchase-order-system/purchase-order-system/*
+          find /home/sup3rab3/actions-runner/_work/ -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+          # Reset ownership and permissions without sudo
+          chown -R sup3rab3:sup3rab3 /home/sup3rab3/actions-runner/_work/purchase-order-system/
+          chmod -R u+w /home/sup3rab3/actions-runner/_work/purchase-order-system/
 
       - name: Debug directory
         working-directory: /home/sup3rab3/actions-runner/_work/purchase-order-system/purchase-order-system
