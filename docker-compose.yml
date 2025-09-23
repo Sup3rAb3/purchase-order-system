@@ -5,6 +5,13 @@ services:
       POSTGRES_DB: purchase_order_db
       POSTGRES_USER: sup3rab3
       POSTGRES_PASSWORD: Sup3r@dmin_
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sup3rab3 -d purchase_order_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -14,13 +21,15 @@ services:
   web:
     build: .
     image: sup3rab3/purchase-order-system-web:latest
-    command: python manage.py runserver 0.0.0.0:8080
+    command: sh -c "python wait_for_db.py && python manage.py migrate && python manage.py runserver 0.0.0.0:8080"
     volumes:
       - .:/app
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        
     environment:
       - DEBUG=1
       - DB_NAME=purchase_order_db
