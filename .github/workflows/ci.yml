@@ -23,20 +23,27 @@ jobs:
 
     - name: Wait for PostgreSQL to be ready
       run: |
-        sleep 10  # Initial buffer
-        while ! docker compose exec db pg_isready -U sup3rab3 -d purchase_order_db; do
-          echo "Waiting for PostgreSQL..."
+        # Initial buffer and max 60 seconds total wait
+        for i in {1..12}; do
+          if docker compose exec db pg_isready -U sup3rab3 -d purchase_order_db; then
+            echo "PostgreSQL is ready!"
+            break
+          fi
+          echo "Waiting for PostgreSQL... Attempt $i/12"
           sleep 5
         done
+        if [ $i -eq 12 ]; then
+          echo "PostgreSQL failed to start within 60 seconds"
+          exit 1
+        fi
 
     - name: Check container logs
       run: |
-        sleep 30
+        sleep 5  # Buffer after DB is ready
         docker compose logs web
 
     - name: Test app availability from container
       run: |
-        sleep 5  # Extra buffer after logs
         docker compose exec web curl -f http://localhost:8080 || exit 1
 
     - name: Stop services
