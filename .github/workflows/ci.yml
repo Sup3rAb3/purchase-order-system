@@ -21,12 +21,12 @@ jobs:
     - name: Start services with docker-compose
       run: docker compose up -d
 
-    - name: Test app availability
+    - name: Test app availability from container
       run: |
         # Wait 30 seconds for the app to start
         sleep 30
-        # Check if the app responds (exit 0 if OK, fail otherwise)
-        curl -f --max-time 10 http://localhost:8080 || exit 1
+        # Test from inside the web container
+        docker compose exec web curl -f http://localhost:8080 || exit 1
 
     - name: Stop services
       if: always()
