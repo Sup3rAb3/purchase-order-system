@@ -21,6 +21,14 @@ jobs:
     - name: Start services with docker-compose
       run: docker compose up -d
 
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        sleep 10  # Initial buffer
+        while ! docker compose exec db pg_isready -U sup3rab3 -d purchase_order_db; do
+          echo "Waiting for PostgreSQL..."
+          sleep 5
+        done
+
     - name: Check container logs
       run: |
         sleep 30
