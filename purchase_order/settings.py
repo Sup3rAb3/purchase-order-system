@@ -31,7 +31,7 @@ SECRET_KEY = 'django-insecure-0fliu9^@ym@*a9!e2(+p2j!op8!8$5mktc!$#wo5zgd@7cm(zd
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = ['192.168.0.129', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['192.168.0.129', 'localhost', '127.0.0.1', 'web']
 
 # SESSIONS
 SESSION_COOKIE_AGE = 1800  # 30 minutes (in seconds)
