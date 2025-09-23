@@ -23,7 +23,6 @@ jobs:
 
     - name: Wait for PostgreSQL to be ready
       run: |
-        # Initial buffer and max 90 seconds total wait
         for i in {1..18}; do
           if docker compose exec -T db pg_isready -U sup3rab3 -d purchase_order_db; then
             echo "PostgreSQL is ready!"
@@ -32,19 +31,23 @@ jobs:
           echo "Waiting for PostgreSQL... Attempt $i/18"
           sleep 5
         done
-        if [ $i -eq 18 ]; then
-          echo "PostgreSQL failed to start within 90 seconds"
-          exit 1
-        fi
 
-    - name: Check container logs
+    - name: Wait for Django web to start
       run: |
-        sleep 10  # Longer buffer for runserver
-        docker compose logs web
+        for i in {1..18}; do
+          if curl -s http://localhost:8080 > /dev/null; then
+            echo "Web service is ready!"
+            break
+          fi
+          echo "Waiting for web service... Attempt $i/18"
+          sleep 5
+        done
 
-    - name: Test app availability from container
-      run: |
-        docker compose exec -T web curl -f http://localhost:8080 || exit 1
+    - name: Check logs
+      run: docker compose logs web
+
+    - name: Test app availability
+      run: curl -f http://localhost:8080 || exit 1
 
     - name: Stop services
       if: always()
