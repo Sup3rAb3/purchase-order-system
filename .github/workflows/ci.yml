@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-test:
     runs-on: self-hosted  # Use self-hosted runner
-    
+
     steps:
       - name: Fix permissions on workspace
         run: sudo chown -R $USER:$USER ${{ github.workspace }}
@@ -17,17 +17,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create .env file for Docker Compose
-        run: echo "SITE_DOMAIN=web:8080" >> .env
-        
-      - name: Debug .env file content
-        run: cat .env
-        
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        
+
       - name: Start services with docker compose
-        run: docker compose up -d --build --force-recreate
+        run: SITE_DOMAIN=web:8080 docker compose up -d --build --force-recreate
 
       - name: Wait for web service to be healthy
         run: |
