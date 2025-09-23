@@ -41,6 +41,13 @@ services:
       - ALLOWED_HOSTS=127.0.0.1,localhost,web
     networks:
       - app_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+      
 volumes:
   postgres_data:
 networks:
