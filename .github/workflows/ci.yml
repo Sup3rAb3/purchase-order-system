@@ -21,6 +21,12 @@ jobs:
     - name: Start services with docker-compose
       run: docker compose up -d
 
+    - name: Test app availability
+      run: |
+        # Wait for the app to start (give it 10 seconds)
+        sleep 10
+        curl -f http://localhost:8080  # Fails if the app isn't up
+
     - name: Stop services
       if: always()
       run: docker compose down --remove-orphans
