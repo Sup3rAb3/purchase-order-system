@@ -3,6 +3,7 @@ name: CI for Purchase Order App
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:  # Allows manual trigger for deployment
 
 jobs:
   build-and-test:
@@ -20,7 +21,6 @@ jobs:
 
       - name: Wait for web service to be healthy
         run: |
-          # Wait up to 90 seconds for the web service to become healthy
           for i in {1..18}; do
             HEALTH_STATUS=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q web))
             if [ "$HEALTH_STATUS" = "healthy" ]; then
@@ -40,6 +40,19 @@ jobs:
 
       - name: Test app inside running web container
         run: docker compose exec web curl -f http://localhost:8080 || exit 1
+
+      - name: Deploy to production
+        if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+        uses: appleboy/ssh-action@master
+        with:
+          host: 192.168.0.129  # Your prod server IP
+          username: ubuntu-adm
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu-adm/prod/purchase-order-system  # Confirmed path
+            git pull origin main
+            docker compose down
+            docker compose up -d --build --force-recreate
 
       - name: Stop services
         if: always()
