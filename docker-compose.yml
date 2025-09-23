@@ -38,6 +38,7 @@ services:
       - DB_HOST=db
       - DB_PORT=5432
       - SITE_DOMAIN=${SITE_DOMAIN:-127.0.0.1:8080} 
+      - ALLOWED_HOSTS=127.0.0.1,localhost,web
     networks:
       - app_network
 volumes:
