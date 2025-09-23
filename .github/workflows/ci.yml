@@ -8,9 +8,13 @@ on:
 jobs:
   build-and-test:
     runs-on: self-hosted  # Use self-hosted runner
-    
+
     steps:
-  
+      - name: Clean workspace
+        run: |
+          rm -rf /home/sup3rab3/actions-runner/_work/purchase-order-system/*
+          find /home/sup3rab3/actions-runner/_work/ -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -46,7 +50,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
         uses: appleboy/ssh-action@master
         with:
-          host: 192.168.0.129  # Local IP works with self-hosted runner
+          host: 192.168.0.129
           username: ubuntu-adm
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
