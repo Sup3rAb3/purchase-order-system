@@ -16,5 +16,5 @@ RUN pip install --no-cache-dir gunicorn
 # Expose Django's new port
 EXPOSE 8080
 
-# Start Django app on port 8080
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]
+# Start with gunicorn (overridden by docker-compose, but consistent)
+CMD ["gunicorn", "purchase_order.wsgi:application", "--bind", "0.0.0.0:8080", "--workers", "3"]
