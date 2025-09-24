@@ -50,8 +50,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.office365.com'  # Outlook SMTP server
 EMAIL_PORT = 587  # Outlook SMTP port (TLS)
 EMAIL_USE_TLS = True  # Use TLS encryption
-EMAIL_HOST_USER = 'amanda@corpus.co.zm'  # Your Outlook email address
-EMAIL_HOST_PASSWORD = 'Corpus2024!'  # Your Outlook password or app password
+EMAIL_HOST_USER = 'no-reply@corpus.co.zm'  #Outlook email address
+EMAIL_HOST_PASSWORD = 'P@ss_word25%'  #Outlook password or app password
 
 #ALLAUTH SETTINGS
 ACCOUNT_SESSION_REMEMBER = None  # Don't extend session duration if "Remember Me" is checked
