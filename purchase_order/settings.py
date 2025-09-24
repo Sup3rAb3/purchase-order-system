@@ -190,7 +190,7 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # settings.py
-DEFAULT_FROM_EMAIL = 'amanda@corpus.co.zm'  # Must match EMAIL_HOST_USER
-SERVER_EMAIL = 'amanda@corpus.co.zm'  # For error notifications
+DEFAULT_FROM_EMAIL = 'no-reply@corpus.co.zm'  # Must match EMAIL_HOST_USER
+SERVER_EMAIL = 'no-reply@corpus.co.zm'  # For error notifications
 
 
