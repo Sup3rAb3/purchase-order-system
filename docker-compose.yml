@@ -37,7 +37,7 @@ services:
       - DB_PASSWORD=Sup3r@dmin_
       - DB_HOST=db
       - DB_PORT=5432
-      - SITE_DOMAIN=${SITE_DOMAIN:-127.0.0.1:8080} 
+      - SITE_DOMAIN=${SITE_DOMAIN} 
       - ALLOWED_HOSTS=127.0.0.1,localhost,web
     networks:
       - app_network
@@ -47,7 +47,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
-      
+
 volumes:
   postgres_data:
 networks:
