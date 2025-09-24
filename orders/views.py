@@ -647,7 +647,7 @@ def send_final_decision_email(approval, decision, pdf_url=None):
         send_mail(
             subject=subject,
             message=email_body,
-            from_email="amanda@corpus.co.zm",
+            from_email="no-reply@corpus.co.zm",
             recipient_list=list(recipients),
             fail_silently=False,
             html_message=email_body,
@@ -707,7 +707,7 @@ def send_petty_cash_approved_email(petty_cash, pdf_url):
         send_mail(
             subject=subject,
             message=message,
-            from_email="amanda@corpus.co.zm",
+            from_email="no-reply@corpus.co.zm",
             recipient_list=list(recipients),
             fail_silently=False,
             html_message=message,

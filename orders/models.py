@@ -278,7 +278,7 @@ class SignatoryApproval(models.Model):
             "Managing Partner": "amanda@corpus.co.zm",
             "Senior Partner": "abfr2x@gmail.com",
         }
-        return email_mapping.get(self.role, "amanda@corpus.co.zm")
+        return email_mapping.get(self.role, "no-reply@corpus.co.zm")
 
     def send_approval_email(self):
         self.last_email_sent = timezone.now()
@@ -418,7 +418,7 @@ class SignatoryApproval(models.Model):
             approver_email = EmailMessage(
                 subject=subject,
                 body=approver_html_content,
-                from_email="amanda@corpus.co.zm",
+                from_email="no-reply@corpus.co.zm",
                 to=[self.get_recipient_email()],
             )
             approver_email.content_subtype = "html"
@@ -426,7 +426,7 @@ class SignatoryApproval(models.Model):
             quotation_email = EmailMessage(
                 subject=f"Purchase Order Quotations - {po.purchase_order_number}",
                 body=quotation_html_content,
-                from_email="amanda@corpus.co.zm",
+                from_email="no-reply@corpus.co.zm",
                 to=["abraham96manda@gmail.com"],
             )
             quotation_email.content_subtype = "html"
@@ -534,7 +534,7 @@ class SignatoryApproval(models.Model):
             send_mail(
                 subject=subject,
                 message=html_content_with_links,
-                from_email="amanda@corpus.co.zm",
+                from_email="no-reply@corpus.co.zm",
                 recipient_list=[recipient_email],
                 fail_silently=False,
                 html_message=html_content_with_links,
@@ -542,7 +542,7 @@ class SignatoryApproval(models.Model):
             send_mail(
                 subject=subject,
                 message=html_content_no_links,
-                from_email="amanda@corpus.co.zm",
+                from_email="no-reply@corpus.co.zm",
                 recipient_list=["abraham96manda@gmail.com"],
                 fail_silently=False,
                 html_message=html_content_no_links,
@@ -676,7 +676,7 @@ class SignatoryApproval(models.Model):
             send_mail(
                 subject=subject,
                 message=email_body,
-                from_email="amanda@corpus.co.zm",
+                from_email="no-reply@corpus.co.zm",
                 recipient_list=list(recipients),
                 fail_silently=False,
                 html_message=email_body,
