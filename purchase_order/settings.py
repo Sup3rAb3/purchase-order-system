@@ -47,11 +47,11 @@ SESSION_COOKIE_SAMESITE = 'Lax'  # Protect against CSRF attacks
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development (emails will be printed to the console)
 # For production, use an SMTP backend:
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.office365.com'  # Outlook SMTP server
+EMAIL_HOST = 'smtp.gmail.com'  # Outlook SMTP server
 EMAIL_PORT = 587  # Outlook SMTP port (TLS)
 EMAIL_USE_TLS = True  # Use TLS encryption
-EMAIL_HOST_USER = 'amanda@corpus.co.zm'  #Outlook email address
-EMAIL_HOST_PASSWORD = '1738@ManlikeAB_Sup3r@dmin_'  #Outlook password or app password
+EMAIL_HOST_USER = 'abedev96@gmail.com'  #Outlook email address
+EMAIL_HOST_PASSWORD = 'kiwt sflg cvrf hixq'  #Outlook password or app password
 
 #ALLAUTH SETTINGS
 ACCOUNT_SESSION_REMEMBER = None  # Don't extend session duration if "Remember Me" is checked
@@ -191,7 +191,7 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # settings.py
-DEFAULT_FROM_EMAIL = 'no-reply@corpus.co.zm'  # Must match EMAIL_HOST_USER
-SERVER_EMAIL = 'no-reply@corpus.co.zm'  # For error notifications
+DEFAULT_FROM_EMAIL = 'amanda@corpus.co.zm'  # Must match EMAIL_HOST_USER
+SERVER_EMAIL = 'amanda@corpus.co.zm'  # For error notifications
 
 
