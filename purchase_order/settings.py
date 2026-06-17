@@ -50,8 +50,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.office365.com'  # Outlook SMTP server
 EMAIL_PORT = 587  # Outlook SMTP port (TLS)
 EMAIL_USE_TLS = True  # Use TLS encryption
-EMAIL_HOST_USER = 'no-reply@corpus.co.zm'  #Outlook email address
-EMAIL_HOST_PASSWORD = 'P@ss_word25%'  #Outlook password or app password
+EMAIL_HOST_USER = 'amanda@corpus.co.zm'  #Outlook email address
+EMAIL_HOST_PASSWORD = '1738@ManlikeAB_Sup3r@dmin_'  #Outlook password or app password
 
 #ALLAUTH SETTINGS
 ACCOUNT_SESSION_REMEMBER = None  # Don't extend session duration if "Remember Me" is checked
@@ -99,6 +99,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -182,7 +183,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # /app/staticfiles for collected files
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'purchase_order', 'static'),  # /app/purchase_order/static for development files
+    os.path.join(BASE_DIR, 'staticfiles', 'static'),  # /app/purchase_order/static for development files
 ]
 
 # Default primary key field type
