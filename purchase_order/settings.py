@@ -27,11 +27,11 @@ DEBUG = True  # Should be True during development
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0fliu9^@ym@*a9!e2(+p2j!op8!8$5mktc!$#wo5zgd@7cm(zd'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-insecure-key-for-dev')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = ['192.168.0.129', 'localhost', '127.0.0.1', 'web']
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # SESSIONS
 SESSION_COOKIE_AGE = 1800  # 30 minutes (in seconds)
@@ -138,7 +138,7 @@ DATABASES = {
         'NAME': os.environ.get('DB_NAME', 'purchase_order_db'),
         'USER': os.environ.get('DB_USER', 'sup3rab3'),
         'PASSWORD': os.environ.get('DB_PASSWORD', 'Sup3r@dmin_'),
-        'HOST': os.environ.get('DB_HOST', 'db'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
         'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }

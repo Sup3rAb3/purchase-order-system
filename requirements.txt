@@ -10,3 +10,5 @@ wheel==0.45.1
 whitenoise==6.12.0
 requests
 reportlab
+django-storages
+boto3
