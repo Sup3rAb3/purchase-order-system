@@ -9,12 +9,17 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
-from pathlib import Path
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Explicitly load the .env file from your project root
+load_dotenv(os.path.join(BASE_DIR, '.env'))
+
 
 SITE_DOMAIN = os.environ.get("SITE_DOMAIN")
 
@@ -56,9 +61,7 @@ EMAIL_HOST_PASSWORD = 'kiwt sflg cvrf hixq'  #Outlook password or app password
 #ALLAUTH SETTINGS
 ACCOUNT_SESSION_REMEMBER = None  # Don't extend session duration if "Remember Me" is checked
 ACCOUNT_EMAIL_SUBJECT_PREFIX = '[JurisPO] '
-ACCOUNT_EMAIL_REQUIRED = True  # Require email for signup
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # Send a verification email
-ACCOUNT_AUTHENTICATION_METHOD = 'email'  # Use email for authentication
 ACCOUNT_UNIQUE_EMAIL = True  # Ensure emails are unique
 ACCOUNT_SIGNUP_REDIRECT_URL = '/create/'
 LOGIN_URL = '/accounts/login/'  # Default allauth login URL (fallback if needed)
@@ -135,11 +138,11 @@ WSGI_APPLICATION = 'purchase_order.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'purchase_order_db',  # ◄── Hardcoded name
-        'USER': 'sup3rab3',            # ◄── Hardcoded user
-        'PASSWORD': '#onk3yshak3r$',  # ◄── Hardcoded password
-        'HOST': 'purchase-order-db.cv8y60ukot9x.eu-north-1.rds.amazonaws.com', # ◄── Hardcoded host
-        'PORT': '5432',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
     }
 }
 
