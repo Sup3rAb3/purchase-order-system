@@ -33,7 +33,7 @@ enterprise-grade cloud infrastructure on AWS, utilizing a serverless container a
 
 ---
 
-## 🏃 Local Environment Setup
+## Local Environment Setup
 
 To run this project locally for development or testing:
 
