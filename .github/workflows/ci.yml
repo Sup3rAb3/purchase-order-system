@@ -85,3 +85,28 @@ jobs:
           
           # Push backup to Docker Hub
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/purchase-order-system:latest
+
+      # 🔄 STEP 3: AUTOMATICALLY REFRESH RUNNING AWS FARGATE TASK
+      - name: Recycle Running Fargate Task
+        run: |
+          CLUSTER_NAME="purchase-order-prod-cluster"  # ◄── Replace with your exact ECS Cluster Name
+          TASK_FAMILY="purchase-order-task"  # ◄── Replace with your exact Task Definition Family Name
+          
+          echo "Finding currently running tasks in cluster..."
+          ACTIVE_TASK=$(aws ecs list-tasks --cluster $CLUSTER_NAME --desired-status RUNNING --query "taskArns[0]" --output text)
+          
+          if [ "$ACTIVE_TASK" != "None" ] && [ -not -z "$ACTIVE_TASK" ]; then
+            echo "Stopping older running task: $ACTIVE_TASK"
+            aws ecs stop-task --cluster $CLUSTER_NAME --task $ACTIVE_TASK
+            echo "Waiting for task termination to clear resources..."
+            sleep 10
+          else
+            echo "No active running tasks found. Proceeding to launch first instance."
+          fi
+          
+          echo "Launching brand new task definition version..."
+          aws ecs run-task \
+            --cluster $CLUSTER_NAME \
+            --launch-type FARGATE \
+            --task-definition $TASK_FAMILY \
+            --network-configuration "awsvpcConfiguration={subnets=[subnet-0ffdb7ba4ad2e7daf],securityGroups=[sg-0677b3acc69d833b0],assignPublicIp=ENABLED}"    
