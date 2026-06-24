@@ -41,3 +41,22 @@ To run this project locally for development or testing:
    bash
    git clone https://github.com/Sup3rAb3/purchase-order-system.git
    cd purchase-order-system
+
+2. Initialize Environment Variables:
+   Create a .env file in the project root directory and define the tracking keys (this template provides a roadmap     for local environment matching without exposing production secrets):
+   DB_NAME=purchase_order_db
+   DB_USER=your_local_user
+   DB_PASSWORD=your_local_password
+   DB_HOST=localhost
+   DB_PORT=5432
+   SECRET_KEY=your_django_secret_key
+   DEBUG=True
+
+3. Spin up Virtual Environment & Dependencies:
+   python -m venv myenv
+   source myenv/bin/activate  # On Windows use: myenv\Scripts\activate
+   pip install -r requirements.txt
+
+4. Run Migrations & Launch Server:
+   python manage.py migrate
+   python manage.py runserver
