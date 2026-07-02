@@ -90,7 +90,7 @@ jobs:
       - name: Force ECS Service Deployment
         run: |
           CLUSTER_NAME="purchase-order-prod-cluster"
-          SERVICE_NAME="svc-purchase-order-system"
+          SERVICE_NAME="purchase-order-task-service-ik2x0c47"
           
           echo "Triggering zero-downtime rolling update on AWS ECS..."
           aws ecs update-service \
