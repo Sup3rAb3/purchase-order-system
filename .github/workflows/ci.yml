@@ -97,3 +97,25 @@ jobs:
             --cluster $CLUSTER_NAME \
             --service $SERVICE_NAME \
             --force-new-deployment
+      
+      # ⚡ STEP 4: SEED DATA ONTO PRODUCTION DB (RUN ONCE IN BACKEND)
+      - name: Run Production Database Seeding Tasks
+        run: |
+          CLUSTER_NAME="purchase-order-prod-cluster"
+          TASK_FAMILY="purchase-order-task"
+          
+          echo "Launching one-off task to seed exchange rates..."
+          aws ecs run-task \
+            --cluster $CLUSTER_NAME \
+            --launch-type FARGATE \
+            --task-definition $TASK_FAMILY \
+            --network-configuration "awsvpcConfiguration={subnets=[subnet-0ffdb7ba4ad2e7daf],securityGroups=[sg-0677b3acc69d833b0],assignPublicIp=ENABLED}" \
+            --overrides '{"containerOverrides": [{"name": "web", "command": ["python", "manage.py", "load_exchange_rates"]}]}'
+          
+          echo "Launching one-off task to fetch latest conversion rates..."
+          aws ecs run-task \
+            --cluster $CLUSTER_NAME \
+            --launch-type FARGATE \
+            --task-definition $TASK_FAMILY \
+            --network-configuration "awsvpcConfiguration={subnets=[subnet-0ffdb7ba4ad2e7daf],securityGroups=[sg-0677b3acc69d833b0],assignPublicIp=ENABLED}" \
+            --overrides '{"containerOverrides": [{"name": "web", "command": ["python", "manage.py", "update_exchange_rates"]}]}'
